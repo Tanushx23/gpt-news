@@ -1,0 +1,21 @@
+# Data files
+india-news-headlines.csv
+india-headlines-news-dataset.zip
+headlines.txt
+
+# Model checkpoints (upload to HuggingFace instead)
+checkpoints/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+.ipynb_checkpoints/
+
+# Environment
+.env
+venv/
+
+# Colab
+.config/
+sample_data/
