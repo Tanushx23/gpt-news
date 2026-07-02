@@ -1,7 +1,7 @@
 import torch
+import torch.nn as nn
 from model.gpt import GPT
 from tokenizers import Tokenizer
-import re
 import os
 
 def load_model(checkpoint_path, device="cuda"):
@@ -24,39 +24,62 @@ def load_model(checkpoint_path, device="cuda"):
     return model, config
 
 
-def clean_text(text):
-    """Fix BPE decoding artifacts — remove spaces before punctuation."""
-    text = re.sub(r" ([,;:'\.\!\?])", r"", text)
-    text = re.sub(r"\s+", " ", text).strip()
-    return text
-
-
 def generate_headline(
     model,
     tokenizer,
     prompt,
-    max_new_tokens = 50,
+    max_new_tokens = 40,
     temperature    = 0.8,
     top_k          = 50,
     top_p          = 0.9,
     device         = "cuda"
 ):
+    """
+    Generates a single headline from a prompt.
+    Stops at newline token for clean headline boundary.
+    """
     model.eval()
 
     encoded = tokenizer.encode(prompt)
     idx = torch.tensor([encoded.ids], dtype=torch.long).to(device)
 
+    # Find newline token id
+    newline_id = tokenizer.encode("\n").ids
+    newline_id = newline_id[0] if newline_id else None
+
+    generated_ids = idx[0].tolist()
+
     with torch.no_grad():
-        output = model.generate(
-            idx,
-            max_new_tokens = max_new_tokens,
-            temperature    = temperature,
-            top_k          = top_k,
-            top_p          = top_p
-        )
+        for _ in range(max_new_tokens):
+            idx_cond = idx[:, -model.context_len:]
+            logits, _, _ = model(idx_cond)
+            logits = logits[:, -1, :] / temperature
 
-    generated_ids = output[0].tolist()
-    generated_text = tokenizer.decode(generated_ids)
-    generated_text = clean_text(generated_text)
+            if top_k is not None:
+                k = min(top_k, logits.size(-1))
+                values, _ = torch.topk(logits, k)
+                logits = logits.masked_fill(
+                    logits < values[:, -1].unsqueeze(-1), float("-inf")
+                )
 
-    return generated_text
+            if top_p is not None:
+                sorted_logits, sorted_idx = torch.sort(logits, descending=True)
+                cum_probs = torch.cumsum(
+                    torch.softmax(sorted_logits, dim=-1), dim=-1
+                )
+                remove = cum_probs - torch.softmax(sorted_logits, dim=-1) > top_p
+                sorted_logits[remove] = float("-inf")
+                logits = torch.scatter(logits, 1, sorted_idx, sorted_logits)
+
+            probs = torch.softmax(logits, dim=-1)
+            next_token = torch.multinomial(probs, num_samples=1)
+            token_id = next_token.item()
+
+            # Stop at newline — clean headline boundary
+            if newline_id is not None and token_id == newline_id:
+                break
+
+            idx = torch.cat([idx, next_token], dim=1)
+            generated_ids.append(token_id)
+
+    return tokenizer.decode(generated_ids).strip()
