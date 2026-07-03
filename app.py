@@ -65,7 +65,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 @st.cache_resource(max_entries=1)
-def load_assets():
+def load_assets_v2():
     device = "cpu"
     model_path = hf_hub_download(
         repo_id="tanush23x/gpt-news-headlines",
@@ -82,7 +82,7 @@ def load_assets():
     return model, tokenizer, device
 
 with st.spinner("Loading model..."):
-    model, tokenizer, device = load_assets()
+    model, tokenizer, device = load_assets_v2()
 
 st.markdown("""
 <div class="header-banner">
