@@ -96,3 +96,17 @@ Applying LayerNorm before attention/feedforward (rather than after, as in the or
 ## Dataset
 
 [India News Headlines Dataset](https://www.kaggle.com/datasets/therohk/india-headlines-news-dataset) — Times of India headlines, 2001-2022 (CC0 license). 150,000 headlines sampled for training.
+
+## Generation Improvements
+
+**v2 (June 2025):** Implemented newline-token stopping during inference — 
+generation now halts cleanly at headline boundaries instead of running 
+across multiple headlines. Temperature sweep confirmed 0.8 as optimal 
+default (0.6 too conservative, 1.0 loses coherence).
+
+Sample outputs after fix:
+| Prompt | Generated |
+|---|---|
+| Supreme Court | Supreme Court asks Centre to put up call on road work |
+| RBI cuts | RBI cuts 73% of Rs 2.5 cr |
+| India vs | India vs Australia: I'm the best-vote; says R Rahman |
