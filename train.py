@@ -14,7 +14,7 @@ config = {
     "context_len"     : 128,
     "dropout"         : 0.2,
     "batch_size"      : 64,
-    "max_steps"       : 4000,
+    "max_steps"      : 6000,
     "eval_every"      : 250,
     "lr"              : 3e-4,
     "text_file"       : "headlines.txt",
