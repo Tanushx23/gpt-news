@@ -18,101 +18,88 @@ st.set_page_config(
 
 st.markdown("""
 <style>
-    /* Force dark background everywhere */
-    .stApp {
-        background-color: #0d1117 !important;
-    }
-    section[data-testid="stSidebar"] {
-        background-color: #161b22 !important;
-    }
+    .stApp { background-color: #0d1117 !important; }
     .main .block-container {
         background-color: #0d1117 !important;
-        padding: 2rem 3rem;
-        max-width: 800px;
+        padding: 2rem 2.5rem;
+        max-width: 820px;
     }
+    body, p, span, label, div, h1, h2, h3 { color: #e6edf3 !important; }
 
-    /* All text white */
-    body, p, span, label, div {
-        color: #e6edf3 !important;
-    }
-
-    /* Header */
     .top-header {
         text-align: center;
-        padding: 2.5rem 0 1.5rem 0;
+        padding: 2rem 0 1.5rem 0;
         border-bottom: 1px solid #21262d;
-        margin-bottom: 2rem;
+        margin-bottom: 1.8rem;
     }
-    .top-header .badge {
-        background: #e94560;
-        color: white !important;
-        font-size: 0.7rem;
+    .top-header .badges {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: center;
+        margin-bottom: 1rem;
+    }
+    .badge {
+        font-size: 0.68rem;
         font-weight: 700;
-        padding: 0.2rem 0.7rem;
+        padding: 0.25rem 0.8rem;
         border-radius: 20px;
         text-transform: uppercase;
         letter-spacing: 0.1em;
-        display: inline-block;
-        margin-bottom: 0.8rem;
     }
+    .badge-red { background: #e94560; color: white !important; }
+    .badge-blue { background: #1f6feb; color: white !important; }
+    .badge-green { background: #238636; color: white !important; }
     .top-header h1 {
         color: #e6edf3 !important;
-        font-size: 2.4rem;
+        font-size: 2.2rem;
         font-weight: 800;
         margin: 0.3rem 0;
         letter-spacing: -1px;
     }
-    .top-header p {
-        color: #8b949e !important;
-        font-size: 0.9rem;
-        margin: 0.5rem 0 0 0;
-    }
+    .top-header p { color: #8b949e !important; font-size: 0.88rem; margin: 0; }
 
-    /* Stats */
     .stats-row {
         display: flex;
         gap: 1px;
         background: #21262d;
         border-radius: 12px;
         overflow: hidden;
-        margin-bottom: 2rem;
+        margin-bottom: 1.8rem;
     }
     .stat-item {
         flex: 1;
-        background: #161b22;
-        padding: 1rem;
+        padding: 0.9rem 0.5rem;
         text-align: center;
     }
-    .stat-item h3 {
-        color: #e94560 !important;
-        font-size: 1.4rem;
-        font-weight: 700;
-        margin: 0;
-    }
-    .stat-item p {
-        color: #8b949e !important;
-        font-size: 0.72rem;
-        margin: 0.2rem 0 0 0;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-    }
+    .stat-item.s1 { background: #161b22; border-bottom: 3px solid #e94560; }
+    .stat-item.s2 { background: #161b22; border-bottom: 3px solid #1f6feb; }
+    .stat-item.s3 { background: #161b22; border-bottom: 3px solid #f78166; }
+    .stat-item.s4 { background: #161b22; border-bottom: 3px solid #238636; }
+    .stat-item.s5 { background: #161b22; border-bottom: 3px solid #a371f7; }
+    .stat-item h3 { font-size: 1.3rem; font-weight: 700; margin: 0; }
+    .stat-item.s1 h3 { color: #e94560 !important; }
+    .stat-item.s2 h3 { color: #1f6feb !important; }
+    .stat-item.s3 h3 { color: #f78166 !important; }
+    .stat-item.s4 h3 { color: #238636 !important; }
+    .stat-item.s5 h3 { color: #a371f7 !important; }
+    .stat-item p { color: #8b949e !important; font-size: 0.68rem; margin: 0.2rem 0 0 0; text-transform: uppercase; letter-spacing: 0.08em; }
 
-    /* Input area */
-    .input-section {
+    .input-card {
         background: #161b22;
         border: 1px solid #21262d;
         border-radius: 14px;
         padding: 1.5rem;
-        margin-bottom: 1.5rem;
+        margin-bottom: 1.2rem;
     }
-    .input-section h3 {
-        color: #e6edf3 !important;
-        font-size: 1rem;
+    .input-card .section-label {
+        color: #8b949e !important;
+        font-size: 0.75rem;
         font-weight: 600;
-        margin: 0 0 0.8rem 0;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 0.6rem;
     }
 
-    /* Text input */
     .stTextInput > div > div > input {
         background-color: #0d1117 !important;
         border: 1px solid #30363d !important;
@@ -122,33 +109,31 @@ st.markdown("""
         padding: 0.65rem 1rem !important;
     }
     .stTextInput > div > div > input:focus {
-        border-color: #e94560 !important;
-        box-shadow: 0 0 0 3px rgba(233,69,96,0.15) !important;
+        border-color: #1f6feb !important;
+        box-shadow: 0 0 0 3px rgba(31,111,235,0.15) !important;
     }
-    .stTextInput > div > div > input::placeholder {
-        color: #484f58 !important;
-    }
+    .stTextInput > div > div > input::placeholder { color: #484f58 !important; }
 
-    /* Quick prompt buttons */
-    div[data-testid="column"] .stButton > button {
+    /* Quick prompt buttons — distinct style */
+    .quick-btn .stButton > button {
         background: #21262d !important;
-        color: #e6edf3 !important;
+        color: #58a6ff !important;
         border: 1px solid #30363d !important;
-        border-radius: 8px !important;
-        font-size: 0.82rem !important;
-        padding: 0.35rem 0.5rem !important;
-        width: 100% !important;
+        border-radius: 20px !important;
+        font-size: 0.8rem !important;
+        padding: 0.3rem 0.6rem !important;
         font-weight: 500 !important;
+        width: 100% !important;
     }
-    div[data-testid="column"] .stButton > button:hover {
-        background: #30363d !important;
-        border-color: #e94560 !important;
+    .quick-btn .stButton > button:hover {
+        background: #1f6feb !important;
+        color: white !important;
+        border-color: #1f6feb !important;
     }
 
     /* Generate button */
-    div[data-testid="stVerticalBlock"] > div:last-child .stButton > button,
-    .generate-btn .stButton > button {
-        background: linear-gradient(135deg, #e94560, #c0392b) !important;
+    .gen-btn .stButton > button {
+        background: linear-gradient(135deg, #238636, #2ea043) !important;
         color: white !important;
         border: none !important;
         border-radius: 10px !important;
@@ -158,8 +143,10 @@ st.markdown("""
         width: 100% !important;
         letter-spacing: 0.02em !important;
     }
+    .gen-btn .stButton > button:hover {
+        background: linear-gradient(135deg, #2ea043, #3fb950) !important;
+    }
 
-    /* Headline cards */
     .news-card {
         background: #161b22;
         border: 1px solid #21262d;
@@ -169,61 +156,27 @@ st.markdown("""
         position: relative;
         overflow: hidden;
     }
-    .news-card::before {
-        content: "";
-        position: absolute;
-        top: 0; left: 0;
-        width: 4px; height: 100%;
-        background: linear-gradient(180deg, #e94560, #c0392b);
-        border-radius: 4px 0 0 4px;
-    }
-    .news-card .card-num {
-        color: #e94560 !important;
-        font-size: 0.68rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.12em;
-        margin-bottom: 0.5rem;
-    }
-    .news-card .card-headline {
-        color: #e6edf3 !important;
-        font-size: 1.15rem;
-        font-weight: 700;
-        line-height: 1.45;
-        margin-bottom: 0.7rem;
-    }
-    .news-card .card-sub {
-        color: #8b949e !important;
-        font-size: 0.85rem;
-        line-height: 1.55;
-        padding-top: 0.7rem;
-        border-top: 1px solid #21262d;
-    }
+    .news-card.c1::before { content: ""; position: absolute; top:0; left:0; width:4px; height:100%; background: #e94560; }
+    .news-card.c2::before { content: ""; position: absolute; top:0; left:0; width:4px; height:100%; background: #1f6feb; }
+    .news-card.c3::before { content: ""; position: absolute; top:0; left:0; width:4px; height:100%; background: #238636; }
+    .news-card.c4::before { content: ""; position: absolute; top:0; left:0; width:4px; height:100%; background: #a371f7; }
+    .news-card.c5::before { content: ""; position: absolute; top:0; left:0; width:4px; height:100%; background: #f78166; }
 
-    /* Empty state */
-    .empty-state {
-        text-align: center;
-        padding: 3rem 0;
-        color: #484f58 !important;
-    }
+    .card-num { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 0.5rem; }
+    .c1 .card-num { color: #e94560 !important; }
+    .c2 .card-num { color: #58a6ff !important; }
+    .c3 .card-num { color: #3fb950 !important; }
+    .c4 .card-num { color: #d2a8ff !important; }
+    .c5 .card-num { color: #f78166 !important; }
+
+    .card-headline { color: #e6edf3 !important; font-size: 1.12rem; font-weight: 700; line-height: 1.45; margin-bottom: 0.7rem; }
+    .card-sub { color: #8b949e !important; font-size: 0.85rem; line-height: 1.55; padding-top: 0.7rem; border-top: 1px solid #21262d; }
+
+    .empty-state { text-align: center; padding: 3rem 0; }
     .empty-state .icon { font-size: 2.5rem; margin-bottom: 0.8rem; }
     .empty-state p { color: #484f58 !important; font-size: 0.9rem; }
 
-    /* Expander */
-    .streamlit-expanderHeader {
-        background: #161b22 !important;
-        border: 1px solid #21262d !important;
-        border-radius: 10px !important;
-        color: #8b949e !important;
-    }
-    .streamlit-expanderContent {
-        background: #161b22 !important;
-        border: 1px solid #21262d !important;
-        border-top: none !important;
-    }
-
-    /* Select slider */
-    .stSlider > div { color: #8b949e !important; }
+    div[data-testid="stExpander"] { background: #161b22 !important; border: 1px solid #21262d !important; border-radius: 10px !important; }
 
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
@@ -231,9 +184,16 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+# ── Session state for prompt ─────────────────────────────────
+if "prompt" not in st.session_state:
+    st.session_state.prompt = ""
+
+def set_prompt(p):
+    st.session_state.prompt = p
+
 # ── Load model ───────────────────────────────────────────────
 @st.cache_resource(max_entries=1)
-def load_assets_v4():
+def load_assets_v5():
     device = "cpu"
     model_path = hf_hub_download(
         repo_id="tanush23x/gpt-news-headlines",
@@ -248,9 +208,9 @@ def load_assets_v4():
     return model, tokenizer, device
 
 with st.spinner("Loading model..."):
-    model, tokenizer, device = load_assets_v4()
+    model, tokenizer, device = load_assets_v5()
 
-# ── Groq sub-description ─────────────────────────────────────
+# ── Groq ─────────────────────────────────────────────────────
 def get_sub_description(headline):
     try:
         client = Groq(api_key=st.secrets["GROQ_API_KEY"])
@@ -258,7 +218,7 @@ def get_sub_description(headline):
             model="llama-3.3-70b-versatile",
             messages=[{
                 "role": "user",
-                "content": f"Write a 1-2 sentence news brief for this Indian news headline. Be concise and journalistic. Do not start with the headline itself: {headline}"
+                "content": f"Write a 1-2 sentence news brief for this Indian news headline. Be concise and journalistic. Do not repeat the headline: {headline}"
             }],
             max_tokens=80
         )
@@ -269,7 +229,11 @@ def get_sub_description(headline):
 # ── Header ───────────────────────────────────────────────────
 st.markdown("""
 <div class="top-header">
-    <div class="badge">AI · Built from Scratch</div>
+    <div class="badges">
+        <span class="badge badge-red">AI</span>
+        <span class="badge badge-blue">PyTorch</span>
+        <span class="badge badge-green">Built from Scratch</span>
+    </div>
     <h1>📰 News Headline Generator</h1>
     <p>GPT-2 transformer trained on 300K Times of India headlines · 13.76M parameters</p>
 </div>
@@ -278,50 +242,61 @@ st.markdown("""
 # ── Stats ────────────────────────────────────────────────────
 st.markdown("""
 <div class="stats-row">
-    <div class="stat-item"><h3>13.76M</h3><p>Parameters</p></div>
-    <div class="stat-item"><h3>300K</h3><p>Headlines</p></div>
-    <div class="stat-item"><h3>~77</h3><p>Perplexity</p></div>
-    <div class="stat-item"><h3>8K</h3><p>Vocabulary</p></div>
-    <div class="stat-item"><h3>4.34</h3><p>Val Loss</p></div>
+    <div class="stat-item s1"><h3>13.76M</h3><p>Parameters</p></div>
+    <div class="stat-item s2"><h3>300K</h3><p>Headlines</p></div>
+    <div class="stat-item s3"><h3>~77</h3><p>Perplexity</p></div>
+    <div class="stat-item s4"><h3>8K</h3><p>Vocabulary</p></div>
+    <div class="stat-item s5"><h3>4.34</h3><p>Val Loss</p></div>
 </div>
 """, unsafe_allow_html=True)
 
 # ── Input ────────────────────────────────────────────────────
-st.markdown('<div class="input-section"><h3>Enter a prompt</h3>', unsafe_allow_html=True)
+st.markdown('<div class="input-card"><div class="section-label">Enter a prompt</div>', unsafe_allow_html=True)
 
 prompt = st.text_input(
     "",
-    placeholder="e.g. Modi, RBI cuts, Delhi, Supreme Court...",
-    value="Modi",
+    placeholder="e.g. Modi, RBI cuts, Delhi, Supreme Court, Indian Railways...",
+    key="prompt",
     label_visibility="collapsed"
 )
 
-st.markdown("**Quick prompts:**")
-cols = st.columns(6)
+st.markdown('<div class="section-label" style="margin-top:1rem">Quick prompts</div>', unsafe_allow_html=True)
+
 suggestions = ["Modi", "RBI", "Delhi", "India vs", "Supreme Court", "Railways"]
+cols = st.columns(6)
 for i, s in enumerate(suggestions):
-    if cols[i].button(s, key=f"q_{s}"):
-        prompt = s
+    with cols[i]:
+        st.markdown('<div class="quick-btn">', unsafe_allow_html=True)
+        if st.button(s, key=f"q_{s}"):
+            set_prompt(s)
+            st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
 
 st.markdown('</div>', unsafe_allow_html=True)
 
 num_variants = st.select_slider(
-    "Number of headlines",
+    "Number of headlines to generate",
     options=[1, 2, 3],
     value=3
 )
 
-generate = st.button("🚀 Generate Headlines")
+st.markdown('<div class="gen-btn">', unsafe_allow_html=True)
+generate = st.button("⚡ Generate Headlines")
+st.markdown('</div>', unsafe_allow_html=True)
 
 # ── Output ───────────────────────────────────────────────────
+colors = ["c1", "c2", "c3", "c4", "c5"]
+
 if generate:
-    if not prompt.strip():
-        st.warning("Please enter a prompt!")
+    current_prompt = st.session_state.prompt
+    if not current_prompt.strip():
+        st.warning("Please enter a prompt or click a quick prompt!")
     else:
+        st.markdown("---")
         for i in range(num_variants):
             with st.spinner(f"Generating headline {i+1}..."):
                 headline = generate_headline(
-                    model, tokenizer, prompt,
+                    model, tokenizer, current_prompt,
                     max_new_tokens=60,
                     temperature=0.8,
                     top_k=50,
@@ -330,8 +305,9 @@ if generate:
                 )
                 sub = get_sub_description(headline)
 
+            c = colors[i % len(colors)]
             st.markdown(f"""
-            <div class="news-card">
+            <div class="news-card {c}">
                 <div class="card-num">Headline {i+1}</div>
                 <div class="card-headline">{headline}</div>
                 {"<div class='card-sub'>" + sub + "</div>" if sub else ""}
@@ -345,7 +321,6 @@ else:
     </div>
     """, unsafe_allow_html=True)
 
-# ── About ────────────────────────────────────────────────────
 with st.expander("ℹ️ About this model"):
     st.markdown("""
     **Architecture:** GPT-2 style transformer built from scratch in PyTorch
@@ -355,7 +330,7 @@ with st.expander("ℹ️ About this model"):
     - KV-caching for efficient autoregressive inference
     - Top-k and Top-p nucleus sampling from scratch
     - Newline-token stopping for clean headline boundaries
-    - Sub-descriptions generated via Groq LLaMA API
+    - Sub-descriptions via Groq LLaMA API
 
     **Training:** T4 GPU · 300K headlines · 6000 steps · 28 mins · Val loss 4.34 · Perplexity ~77
     """)
