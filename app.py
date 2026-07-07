@@ -20,15 +20,28 @@ st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
-    .stApp { background-color: #050507 !important; }
+    /* ---- Token system ----
+       bg-base:      #101216  (layered dark grey, not pure black)
+       bg-surface:   #191c22  (cards)
+       bg-hover:     #1f232b  (card hover)
+       border:       rgba(255,255,255,0.09)
+       border-hover: rgba(129,140,248,0.35)
+       text-primary: #f1f5f9
+       text-secondary: #a3adc2  (readable grey, not near-invisible)
+       text-tertiary:  #6b7686
+       accent-indigo: #818cf8 / #6366f1
+       accent-cyan:   #22d3ee  (contrast highlight for stats)
+    */
+
+    .stApp { background-color: #101216 !important; }
     .main .block-container {
-        background-color: #050507 !important;
-        padding: 0 !important;
+        background-color: #101216 !important;
+        padding: 76px 0 0 0 !important;
         max-width: 100% !important;
     }
     * { font-family: 'Inter', -apple-system, sans-serif !important; }
     body, p, span, label, div, h1, h2, h3, li, strong {
-        color: #f8fafc !important;
+        color: #f1f5f9 !important;
     }
 
     /* Topbar */
@@ -36,11 +49,11 @@ st.markdown("""
         position: fixed;
         top: 0; left: 0; right: 0;
         z-index: 999;
-        background: rgba(5, 5, 7, 0.85);
+        background: rgba(16, 18, 22, 0.88);
         backdrop-filter: blur(20px);
-        border-bottom: 1px solid rgba(255,255,255,0.06);
+        border-bottom: 1px solid rgba(255,255,255,0.08);
         padding: 0 3rem;
-        height: 56px;
+        height: 60px;
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -48,7 +61,7 @@ st.markdown("""
     .topbar-logo {
         font-size: 1rem;
         font-weight: 700;
-        color: #f8fafc !important;
+        color: #f1f5f9 !important;
         letter-spacing: -0.3px;
         display: flex;
         align-items: center;
@@ -67,54 +80,46 @@ st.markdown("""
     }
     .topbar-link {
         font-size: 0.82rem;
-        color: #64748b !important;
+        color: #8b94a7 !important;
         font-weight: 500;
     }
     .topbar-cta {
-        background: white;
-        color: #050507 !important;
+        background: #f1f5f9;
+        color: #101216 !important;
         font-size: 0.82rem;
         font-weight: 600;
         padding: 0.4rem 1.1rem;
         border-radius: 6px;
     }
 
-    /* Main layout */
-    .page-wrap {
-        padding-top: 56px;
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        min-height: 100vh;
-    }
-
     /* Left */
     .left-col {
-        padding: 5rem 4rem 4rem 4rem;
+        padding: 4rem 4rem 3rem 4rem;
         display: flex;
         flex-direction: column;
         justify-content: center;
-        border-right: 1px solid rgba(255,255,255,0.05);
+        border-right: 1px solid rgba(255,255,255,0.07);
         position: relative;
         overflow: hidden;
     }
     .left-glow {
         position: absolute;
-        width: 400px; height: 400px;
-        background: radial-gradient(circle, rgba(99,102,241,0.12) 0%, transparent 70%);
-        top: 20%; left: -100px;
+        width: 420px; height: 420px;
+        background: radial-gradient(circle, rgba(99,102,241,0.14) 0%, transparent 70%);
+        top: 15%; left: -120px;
         pointer-events: none;
     }
     .eyebrow {
         display: inline-flex;
         align-items: center;
         gap: 0.5rem;
-        background: rgba(99,102,241,0.1);
-        border: 1px solid rgba(99,102,241,0.25);
+        background: rgba(99,102,241,0.12);
+        border: 1px solid rgba(129,140,248,0.3);
         border-radius: 20px;
         padding: 0.3rem 0.9rem;
         font-size: 0.72rem;
         font-weight: 600;
-        color: #818cf8 !important;
+        color: #a5b4fc !important;
         letter-spacing: 0.05em;
         text-transform: uppercase;
         margin-bottom: 1.8rem;
@@ -131,13 +136,13 @@ st.markdown("""
         font-weight: 900;
         line-height: 1.05;
         letter-spacing: -2px;
-        color: #f8fafc !important;
+        color: #f1f5f9 !important;
         margin-bottom: 1.2rem;
     }
-    .hero-h1 .purple { color: #818cf8 !important; }
+    .hero-h1 .purple { color: #a5b4fc !important; }
     .hero-desc {
         font-size: 1rem;
-        color: #64748b !important;
+        color: #a3adc2 !important;
         line-height: 1.7;
         max-width: 420px;
         margin-bottom: 2.5rem;
@@ -150,29 +155,29 @@ st.markdown("""
         margin-bottom: 1rem;
     }
     .stTextInput > div > div > input {
-        background: rgba(255,255,255,0.04) !important;
-        border: 1px solid rgba(255,255,255,0.1) !important;
+        background: rgba(255,255,255,0.045) !important;
+        border: 1px solid rgba(255,255,255,0.14) !important;
         border-radius: 12px !important;
-        color: #f8fafc !important;
+        color: #f1f5f9 !important;
         font-size: 1rem !important;
         padding: 1rem 1.2rem !important;
         transition: all 0.2s !important;
         height: 54px !important;
     }
     .stTextInput > div > div > input:focus {
-        border-color: #6366f1 !important;
-        background: rgba(99,102,241,0.06) !important;
-        box-shadow: 0 0 0 4px rgba(99,102,241,0.1) !important;
+        border-color: #818cf8 !important;
+        background: rgba(99,102,241,0.08) !important;
+        box-shadow: 0 0 0 4px rgba(99,102,241,0.15) !important;
     }
     .stTextInput > div > div > input::placeholder {
-        color: #334155 !important;
+        color: #5b6577 !important;
         font-weight: 400;
     }
 
     /* Generate button */
     .stButton > button {
-        background: #f8fafc !important;
-        color: #050507 !important;
+        background: #f1f5f9 !important;
+        color: #101216 !important;
         border: none !important;
         border-radius: 10px !important;
         padding: 0 1.5rem !important;
@@ -184,9 +189,9 @@ st.markdown("""
         transition: all 0.15s !important;
     }
     .stButton > button:hover {
-        background: #e2e8f0 !important;
+        background: #c7d2fe !important;
         transform: translateY(-1px) !important;
-        box-shadow: 0 8px 24px rgba(0,0,0,0.4) !important;
+        box-shadow: 0 8px 24px rgba(99,102,241,0.25) !important;
     }
 
     /* Stats row */
@@ -194,7 +199,7 @@ st.markdown("""
         display: flex;
         gap: 2rem;
         padding-top: 2rem;
-        border-top: 1px solid rgba(255,255,255,0.06);
+        border-top: 1px solid rgba(255,255,255,0.08);
         margin-top: 1.5rem;
     }
     .stat-s {
@@ -205,12 +210,12 @@ st.markdown("""
     .stat-s .v {
         font-size: 1.2rem;
         font-weight: 800;
-        color: #f8fafc !important;
+        color: #22d3ee !important;
         letter-spacing: -0.5px;
     }
     .stat-s .l {
         font-size: 0.7rem;
-        color: #475569 !important;
+        color: #6b7686 !important;
         text-transform: uppercase;
         letter-spacing: 0.08em;
         font-weight: 500;
@@ -218,15 +223,15 @@ st.markdown("""
 
     /* Right column */
     .right-col {
-        background: #050507;
-        padding: 5rem 4rem 4rem 4rem;
+        background: #101216;
+        padding: 4rem 4rem 3rem 4rem;
         display: flex;
         flex-direction: column;
     }
     .right-label {
         font-size: 0.7rem;
         font-weight: 600;
-        color: #334155 !important;
+        color: #6b7686 !important;
         text-transform: uppercase;
         letter-spacing: 0.15em;
         margin-bottom: 1.5rem;
@@ -243,8 +248,8 @@ st.markdown("""
 
     /* Cards */
     .news-card {
-        background: rgba(255,255,255,0.03);
-        border: 1px solid rgba(255,255,255,0.07);
+        background: #191c22;
+        border: 1px solid rgba(255,255,255,0.09);
         border-radius: 14px;
         padding: 1.5rem 1.7rem;
         margin-bottom: 1rem;
@@ -253,20 +258,20 @@ st.markdown("""
         transition: border-color 0.2s, background 0.2s;
     }
     .news-card:hover {
-        border-color: rgba(99,102,241,0.3);
-        background: rgba(99,102,241,0.04);
+        border-color: rgba(129,140,248,0.35);
+        background: #1f232b;
     }
     .card-glow {
         position: absolute;
         top: 0; left: 0;
         right: 0; height: 1px;
         background: linear-gradient(90deg, transparent, #6366f1, transparent);
-        opacity: 0.6;
+        opacity: 0.7;
     }
     .card-n {
         font-size: 0.65rem;
         font-weight: 700;
-        color: #6366f1 !important;
+        color: #22d3ee !important;
         text-transform: uppercase;
         letter-spacing: 0.15em;
         margin-bottom: 0.6rem;
@@ -283,9 +288,9 @@ st.markdown("""
     .card-d {
         font-size: 0.82rem;
         line-height: 1.6;
-        color: #475569 !important;
+        color: #8b94a7 !important;
         padding-top: 0.75rem;
-        border-top: 1px solid rgba(255,255,255,0.05);
+        border-top: 1px solid rgba(255,255,255,0.07);
         font-weight: 400;
     }
 
@@ -301,8 +306,8 @@ st.markdown("""
     }
     .empty-icon-box {
         width: 64px; height: 64px;
-        background: rgba(99,102,241,0.08);
-        border: 1px solid rgba(99,102,241,0.15);
+        background: rgba(99,102,241,0.1);
+        border: 1px solid rgba(129,140,248,0.2);
         border-radius: 18px;
         display: flex;
         align-items: center;
@@ -312,19 +317,19 @@ st.markdown("""
     .empty-t {
         font-size: 0.95rem;
         font-weight: 600;
-        color: #334155 !important;
+        color: #a3adc2 !important;
     }
     .empty-s {
         font-size: 0.8rem;
-        color: #1e293b !important;
+        color: #6b7686 !important;
         text-align: center;
         max-width: 260px;
         line-height: 1.6;
     }
 
     div[data-testid="stExpander"] {
-        background: rgba(255,255,255,0.03) !important;
-        border: 1px solid rgba(255,255,255,0.07) !important;
+        background: #191c22 !important;
+        border: 1px solid rgba(255,255,255,0.09) !important;
         border-radius: 10px !important;
         margin-top: 2rem;
     }
@@ -467,3 +472,4 @@ with right:
         """, unsafe_allow_html=True)
 
     st.markdown("</div>", unsafe_allow_html=True)
+    
