@@ -11,309 +11,322 @@ from model.gpt import GPT
 from inference import load_model, generate_headline
 
 st.set_page_config(
-    page_title="Indian News Headline Generator",
+    page_title="NewsGPT",
     page_icon="📰",
     layout="wide"
 )
 
 st.markdown("""
 <style>
-    /* Base */
-    .stApp { background-color: #080b10 !important; }
-    section[data-testid="stSidebar"] { display: none; }
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+    .stApp { background-color: #050507 !important; }
     .main .block-container {
-        background-color: #080b10 !important;
+        background-color: #050507 !important;
         padding: 0 !important;
         max-width: 100% !important;
     }
-    * { box-sizing: border-box; }
-    body, p, span, label, div, h1, h2, h3, li, strong, em {
-        color: #e2e8f0 !important;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+    * { font-family: 'Inter', -apple-system, sans-serif !important; }
+    body, p, span, label, div, h1, h2, h3, li, strong {
+        color: #f8fafc !important;
     }
 
     /* Topbar */
     .topbar {
-        background: rgba(8, 11, 16, 0.95);
-        border-bottom: 1px solid #1e293b;
-        padding: 1rem 3rem;
+        position: fixed;
+        top: 0; left: 0; right: 0;
+        z-index: 999;
+        background: rgba(5, 5, 7, 0.85);
+        backdrop-filter: blur(20px);
+        border-bottom: 1px solid rgba(255,255,255,0.06);
+        padding: 0 3rem;
+        height: 56px;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        position: sticky;
-        top: 0;
-        z-index: 100;
-        backdrop-filter: blur(12px);
     }
     .topbar-logo {
-        font-size: 1.1rem;
+        font-size: 1rem;
         font-weight: 700;
-        color: #e2e8f0 !important;
+        color: #f8fafc !important;
         letter-spacing: -0.3px;
-    }
-    .topbar-logo span { color: #6366f1 !important; }
-    .topbar-meta {
-        font-size: 0.72rem;
-        color: #475569 !important;
-        letter-spacing: 0.05em;
-    }
-    .topbar-badge {
-        background: rgba(99, 102, 241, 0.15);
-        border: 1px solid rgba(99, 102, 241, 0.3);
-        color: #818cf8 !important;
-        font-size: 0.68rem;
-        font-weight: 600;
-        padding: 0.25rem 0.75rem;
-        border-radius: 20px;
-        letter-spacing: 0.05em;
-    }
-
-    /* Two column wrapper */
-    .page-grid {
-        display: grid;
-        grid-template-columns: 420px 1fr;
-        min-height: calc(100vh - 57px);
-    }
-
-    /* Left panel */
-    .left-panel {
-        background: #0d1117;
-        border-right: 1px solid #1e293b;
-        padding: 2.5rem 2rem;
         display: flex;
-        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .logo-dot {
+        width: 8px; height: 8px;
+        background: #6366f1;
+        border-radius: 50%;
+        box-shadow: 0 0 10px #6366f1;
+    }
+    .topbar-right {
+        display: flex;
+        align-items: center;
         gap: 1.5rem;
     }
-    .panel-label {
-        font-size: 0.65rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.15em;
-        color: #475569 !important;
-        margin-bottom: 0.5rem;
-    }
-    .hero-text {
-        font-size: 1.9rem;
-        font-weight: 800;
-        line-height: 1.2;
-        color: #f1f5f9 !important;
-        letter-spacing: -0.8px;
-    }
-    .hero-text .accent { color: #6366f1 !important; }
-    .hero-sub {
-        font-size: 0.85rem;
+    .topbar-link {
+        font-size: 0.82rem;
         color: #64748b !important;
-        line-height: 1.6;
-        margin-top: -0.5rem;
+        font-weight: 500;
+    }
+    .topbar-cta {
+        background: white;
+        color: #050507 !important;
+        font-size: 0.82rem;
+        font-weight: 600;
+        padding: 0.4rem 1.1rem;
+        border-radius: 6px;
     }
 
-    /* Stats */
-    .mini-stats {
+    /* Main layout */
+    .page-wrap {
+        padding-top: 56px;
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 0.6rem;
-    }
-    .mini-stat {
-        background: #161b22;
-        border: 1px solid #1e293b;
-        border-radius: 8px;
-        padding: 0.75rem 1rem;
-    }
-    .mini-stat .val {
-        font-size: 1.1rem;
-        font-weight: 700;
-        color: #e2e8f0 !important;
-    }
-    .mini-stat .lbl {
-        font-size: 0.65rem;
-        color: #475569 !important;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        margin-top: 0.1rem;
+        min-height: 100vh;
     }
 
-    /* Divider */
-    .divider {
-        height: 1px;
-        background: linear-gradient(90deg, transparent, #1e293b, transparent);
-        margin: 0;
+    /* Left */
+    .left-col {
+        padding: 5rem 4rem 4rem 4rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        border-right: 1px solid rgba(255,255,255,0.05);
+        position: relative;
+        overflow: hidden;
+    }
+    .left-glow {
+        position: absolute;
+        width: 400px; height: 400px;
+        background: radial-gradient(circle, rgba(99,102,241,0.12) 0%, transparent 70%);
+        top: 20%; left: -100px;
+        pointer-events: none;
+    }
+    .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: rgba(99,102,241,0.1);
+        border: 1px solid rgba(99,102,241,0.25);
+        border-radius: 20px;
+        padding: 0.3rem 0.9rem;
+        font-size: 0.72rem;
+        font-weight: 600;
+        color: #818cf8 !important;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        margin-bottom: 1.8rem;
+        width: fit-content;
+    }
+    .eyebrow-dot {
+        width: 5px; height: 5px;
+        background: #6366f1;
+        border-radius: 50%;
+        box-shadow: 0 0 6px #6366f1;
+    }
+    .hero-h1 {
+        font-size: 3.6rem;
+        font-weight: 900;
+        line-height: 1.05;
+        letter-spacing: -2px;
+        color: #f8fafc !important;
+        margin-bottom: 1.2rem;
+    }
+    .hero-h1 .purple { color: #818cf8 !important; }
+    .hero-desc {
+        font-size: 1rem;
+        color: #64748b !important;
+        line-height: 1.7;
+        max-width: 420px;
+        margin-bottom: 2.5rem;
+        font-weight: 400;
     }
 
     /* Input */
+    .input-wrap {
+        position: relative;
+        margin-bottom: 1rem;
+    }
     .stTextInput > div > div > input {
-        background-color: #161b22 !important;
-        border: 1px solid #1e293b !important;
-        border-radius: 10px !important;
-        color: #e2e8f0 !important;
-        font-size: 0.95rem !important;
-        padding: 0.75rem 1rem !important;
-        transition: border-color 0.2s, box-shadow 0.2s !important;
+        background: rgba(255,255,255,0.04) !important;
+        border: 1px solid rgba(255,255,255,0.1) !important;
+        border-radius: 12px !important;
+        color: #f8fafc !important;
+        font-size: 1rem !important;
+        padding: 1rem 1.2rem !important;
+        transition: all 0.2s !important;
+        height: 54px !important;
     }
     .stTextInput > div > div > input:focus {
         border-color: #6366f1 !important;
-        box-shadow: 0 0 0 3px rgba(99,102,241,0.15) !important;
-        outline: none !important;
+        background: rgba(99,102,241,0.06) !important;
+        box-shadow: 0 0 0 4px rgba(99,102,241,0.1) !important;
     }
     .stTextInput > div > div > input::placeholder {
         color: #334155 !important;
-    }
-
-    /* Quick chips */
-    .chips-row {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-        margin-top: 0.3rem;
-    }
-    .chip {
-        background: #161b22;
-        border: 1px solid #1e293b;
-        border-radius: 20px;
-        padding: 0.3rem 0.85rem;
-        font-size: 0.78rem;
-        color: #94a3b8 !important;
-        cursor: pointer;
-        transition: all 0.15s;
-        display: inline-block;
-    }
-    .chip:hover {
-        border-color: #6366f1;
-        color: #818cf8 !important;
-        background: rgba(99,102,241,0.08);
+        font-weight: 400;
     }
 
     /* Generate button */
     .stButton > button {
-        background: linear-gradient(135deg, #4f46e5, #7c3aed) !important;
-        color: white !important;
+        background: #f8fafc !important;
+        color: #050507 !important;
         border: none !important;
         border-radius: 10px !important;
-        padding: 0.75rem 1.5rem !important;
-        font-size: 0.95rem !important;
-        font-weight: 600 !important;
+        padding: 0 1.5rem !important;
+        font-size: 0.9rem !important;
+        font-weight: 700 !important;
+        height: 54px !important;
         width: 100% !important;
-        letter-spacing: 0.01em !important;
-        transition: opacity 0.2s !important;
-        box-shadow: 0 4px 24px rgba(99,102,241,0.25) !important;
+        letter-spacing: -0.2px !important;
+        transition: all 0.15s !important;
     }
     .stButton > button:hover {
-        opacity: 0.9 !important;
-        box-shadow: 0 6px 32px rgba(99,102,241,0.4) !important;
+        background: #e2e8f0 !important;
+        transform: translateY(-1px) !important;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.4) !important;
     }
 
-    /* Right panel */
-    .right-panel {
-        background: #080b10;
-        padding: 2.5rem 2.5rem;
+    /* Stats row */
+    .stats-strip {
+        display: flex;
+        gap: 2rem;
+        padding-top: 2rem;
+        border-top: 1px solid rgba(255,255,255,0.06);
+        margin-top: 1.5rem;
     }
-    .output-header {
+    .stat-s {
+        display: flex;
+        flex-direction: column;
+        gap: 0.2rem;
+    }
+    .stat-s .v {
+        font-size: 1.2rem;
+        font-weight: 800;
+        color: #f8fafc !important;
+        letter-spacing: -0.5px;
+    }
+    .stat-s .l {
+        font-size: 0.7rem;
+        color: #475569 !important;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        font-weight: 500;
+    }
+
+    /* Right column */
+    .right-col {
+        background: #050507;
+        padding: 5rem 4rem 4rem 4rem;
+        display: flex;
+        flex-direction: column;
+    }
+    .right-label {
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: #334155 !important;
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        margin-bottom: 1.5rem;
         display: flex;
         align-items: center;
-        justify-content: space-between;
-        margin-bottom: 1.5rem;
-        padding-bottom: 1rem;
-        border-bottom: 1px solid #1e293b;
+        gap: 0.5rem;
     }
-    .output-title {
-        font-size: 0.85rem;
-        font-weight: 600;
-        color: #94a3b8 !important;
-        letter-spacing: 0.05em;
-        text-transform: uppercase;
-    }
-    .output-dot {
-        width: 6px; height: 6px;
+    .right-label-dot {
+        width: 5px; height: 5px;
         background: #6366f1;
         border-radius: 50%;
-        display: inline-block;
-        margin-right: 0.5rem;
-        box-shadow: 0 0 8px #6366f1;
+        box-shadow: 0 0 6px #6366f1;
     }
 
-    /* News cards */
+    /* Cards */
     .news-card {
-        background: #0d1117;
-        border: 1px solid #1e293b;
-        border-radius: 12px;
-        padding: 1.4rem 1.6rem;
+        background: rgba(255,255,255,0.03);
+        border: 1px solid rgba(255,255,255,0.07);
+        border-radius: 14px;
+        padding: 1.5rem 1.7rem;
         margin-bottom: 1rem;
         position: relative;
         overflow: hidden;
-        transition: border-color 0.2s, box-shadow 0.2s;
+        transition: border-color 0.2s, background 0.2s;
     }
     .news-card:hover {
-        border-color: #334155;
-        box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+        border-color: rgba(99,102,241,0.3);
+        background: rgba(99,102,241,0.04);
     }
-    .news-card .glow {
+    .card-glow {
         position: absolute;
         top: 0; left: 0;
-        width: 100%; height: 2px;
-        background: linear-gradient(90deg, #4f46e5, #7c3aed, transparent);
+        right: 0; height: 1px;
+        background: linear-gradient(90deg, transparent, #6366f1, transparent);
+        opacity: 0.6;
     }
-    .card-num {
+    .card-n {
         font-size: 0.65rem;
         font-weight: 700;
+        color: #6366f1 !important;
         text-transform: uppercase;
         letter-spacing: 0.15em;
-        color: #6366f1 !important;
-        margin-bottom: 0.5rem;
-        margin-top: 0.3rem;
+        margin-bottom: 0.6rem;
+        margin-top: 0.2rem;
     }
-    .card-headline {
-        font-size: 1.15rem;
+    .card-h {
+        font-size: 1.1rem;
         font-weight: 700;
         line-height: 1.45;
         color: #f1f5f9 !important;
-        margin-bottom: 0.7rem;
-        letter-spacing: -0.2px;
+        letter-spacing: -0.3px;
+        margin-bottom: 0.75rem;
     }
-    .card-sub {
-        font-size: 0.83rem;
+    .card-d {
+        font-size: 0.82rem;
         line-height: 1.6;
-        color: #64748b !important;
-        padding-top: 0.7rem;
-        border-top: 1px solid #1e293b;
+        color: #475569 !important;
+        padding-top: 0.75rem;
+        border-top: 1px solid rgba(255,255,255,0.05);
+        font-weight: 400;
     }
 
-    /* Empty state */
-    .empty-state {
+    /* Empty */
+    .empty-wrap {
+        flex: 1;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        height: 60vh;
-        text-align: center;
         gap: 1rem;
+        padding: 4rem 0;
     }
-    .empty-icon {
-        width: 60px; height: 60px;
-        background: rgba(99,102,241,0.1);
-        border: 1px solid rgba(99,102,241,0.2);
-        border-radius: 16px;
+    .empty-icon-box {
+        width: 64px; height: 64px;
+        background: rgba(99,102,241,0.08);
+        border: 1px solid rgba(99,102,241,0.15);
+        border-radius: 18px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.6rem;
-        margin: 0 auto;
+        font-size: 1.8rem;
     }
-    .empty-title {
-        font-size: 1rem;
+    .empty-t {
+        font-size: 0.95rem;
         font-weight: 600;
         color: #334155 !important;
     }
-    .empty-sub {
+    .empty-s {
         font-size: 0.8rem;
         color: #1e293b !important;
-        max-width: 280px;
+        text-align: center;
+        max-width: 260px;
+        line-height: 1.6;
     }
 
-    /* Expander */
     div[data-testid="stExpander"] {
-        background: #161b22 !important;
-        border: 1px solid #1e293b !important;
+        background: rgba(255,255,255,0.03) !important;
+        border: 1px solid rgba(255,255,255,0.07) !important;
         border-radius: 10px !important;
-        margin-top: 1.5rem;
+        margin-top: 2rem;
     }
 
     #MainMenu {visibility: hidden;}
@@ -329,29 +342,23 @@ if "results" not in st.session_state:
     st.session_state.results = []
 
 @st.cache_resource(max_entries=1)
-def load_assets_v7():
+def load_assets_v8():
     device = "cpu"
-    model_path = hf_hub_download(
-        repo_id="tanush23x/gpt-news-headlines",
-        filename="best_model.pt"
-    )
-    tokenizer_path = hf_hub_download(
-        repo_id="tanush23x/gpt-news-headlines",
-        filename="bpe_tokenizer.json"
-    )
+    model_path = hf_hub_download(repo_id="tanush23x/gpt-news-headlines", filename="best_model.pt")
+    tokenizer_path = hf_hub_download(repo_id="tanush23x/gpt-news-headlines", filename="bpe_tokenizer.json")
     model, config = load_model(model_path, device)
     tokenizer = Tokenizer.from_file(tokenizer_path)
     return model, tokenizer, device
 
-with st.spinner("Loading model..."):
-    model, tokenizer, device = load_assets_v7()
+with st.spinner(""):
+    model, tokenizer, device = load_assets_v8()
 
 def get_sub(headline):
     try:
         client = Groq(api_key=st.secrets["GROQ_API_KEY"])
         r = client.chat.completions.create(
             model="llama-3.3-70b-versatile",
-            messages=[{"role": "user", "content": f"Write a 1-2 sentence Indian news brief for this headline. Be concise and journalistic. Do not repeat the headline: {headline}"}],
+            messages=[{"role":"user","content":f"Write a 1-2 sentence Indian news brief for this headline. Be concise and journalistic. Do not repeat the headline: {headline}"}],
             max_tokens=80
         )
         return r.choices[0].message.content.strip()
@@ -361,41 +368,33 @@ def get_sub(headline):
 # Topbar
 st.markdown("""
 <div class="topbar">
-    <div class="topbar-logo">📰 News<span>GPT</span></div>
-    <div class="topbar-meta">GPT-2 · Built from Scratch · PyTorch</div>
-    <div class="topbar-badge">13.76M Parameters</div>
+    <div class="topbar-logo">
+        <div class="logo-dot"></div>
+        NewsGPT
+    </div>
+    <div class="topbar-right">
+        <span class="topbar-link">13.76M Parameters</span>
+        <span class="topbar-link">300K Headlines</span>
+        <span class="topbar-cta">PyTorch · Built from Scratch</span>
+    </div>
 </div>
 """, unsafe_allow_html=True)
 
-# Two column layout
-left, right = st.columns([1.1, 1.8])
+left, right = st.columns([1, 1])
 
 with left:
     st.markdown("""
-    <div style="padding: 2rem 1rem 0 1rem;">
-        <div class="panel-label">Indian News Headline Generator</div>
-        <div class="hero-text">Generate news<br>headlines with <span class="accent">AI</span></div>
-        <div class="hero-sub" style="margin-top:0.8rem">
-            A GPT-2 transformer trained from scratch on 300,000
-            Times of India headlines — generating realistic Indian
-            news in seconds.
+    <div class="left-col">
+        <div class="left-glow"></div>
+        <div class="eyebrow"><div class="eyebrow-dot"></div>AI · Indian News · GPT-2</div>
+        <div class="hero-h1">Generate<br>Indian News<br><span class="purple">Headlines.</span></div>
+        <div class="hero-desc">
+            A GPT-2 transformer built from scratch and trained on
+            300,000 Times of India headlines. Type any topic and
+            watch AI write realistic Indian news.
         </div>
     </div>
     """, unsafe_allow_html=True)
-
-    st.markdown("""
-    <div style="padding: 1rem 1rem 0 1rem;">
-    <div class="mini-stats">
-        <div class="mini-stat"><div class="val">300K</div><div class="lbl">Headlines trained</div></div>
-        <div class="mini-stat"><div class="val">~77</div><div class="lbl">Perplexity</div></div>
-        <div class="mini-stat"><div class="val">8K</div><div class="lbl">Vocabulary size</div></div>
-        <div class="mini-stat"><div class="val">4.34</div><div class="lbl">Val loss</div></div>
-    </div>
-    </div>
-    """, unsafe_allow_html=True)
-
-    st.markdown("<div style='padding: 0 1rem;'>", unsafe_allow_html=True)
-    st.markdown('<div class="panel-label" style="margin-bottom:0.3rem">Enter a topic or keyword</div>', unsafe_allow_html=True)
 
     prompt = st.text_input(
         "",
@@ -404,82 +403,66 @@ with left:
         label_visibility="collapsed"
     )
 
-    st.markdown('<div class="panel-label" style="margin-bottom:0.3rem; margin-top:0.5rem">Quick topics</div>', unsafe_allow_html=True)
+    col1, col2 = st.columns([3,1])
+    with col1:
+        num_variants = st.radio("", [1,2,3], index=2, horizontal=True, label_visibility="collapsed")
+    with col2:
+        generate = st.button("Generate →", use_container_width=True)
 
-    suggestions = ["Modi", "RBI", "Delhi", "India vs", "Supreme Court", "Railways", "Budget", "Election"]
-    cols = st.columns(4)
-    for i, s in enumerate(suggestions):
-        with cols[i % 4]:
-            if st.button(s, key=f"chip_{s}", use_container_width=True):
-                st.session_state.prompt_val = s
-                st.rerun()
-
-    st.markdown("<br>", unsafe_allow_html=True)
-
-    num_variants = st.radio(
-        "Headlines to generate",
-        options=[1, 2, 3],
-        index=2,
-        horizontal=True,
-        label_visibility="visible"
-    )
-
-    st.markdown("<br>", unsafe_allow_html=True)
-    generate = st.button("⚡ Generate Headlines", use_container_width=True)
-    st.markdown("</div>", unsafe_allow_html=True)
+    st.markdown("""
+    <div class="stats-strip">
+        <div class="stat-s"><div class="v">300K</div><div class="l">Headlines</div></div>
+        <div class="stat-s"><div class="v">13.76M</div><div class="l">Parameters</div></div>
+        <div class="stat-s"><div class="v">~77</div><div class="l">Perplexity</div></div>
+        <div class="stat-s"><div class="v">4.34</div><div class="l">Val Loss</div></div>
+    </div>
+    """, unsafe_allow_html=True)
 
     with st.expander("About this model"):
         st.markdown("""
-        **Architecture:** GPT-2 style transformer built from scratch — self-attention, multi-head attention, residual connections, layer norm.
+        GPT-2 transformer built from scratch in PyTorch — self-attention, multi-head attention, residual connections, layer norm, KV-caching, top-k/top-p sampling, ByteLevel BPE tokenizer. Sub-descriptions via Groq LLaMA.
 
-        **Features:** Custom ByteLevel BPE tokenizer · KV-caching · Top-k/Top-p sampling · Newline stopping · Groq LLaMA sub-descriptions
-
-        **Training:** T4 GPU · 300K headlines · 6000 steps · Val loss 4.34
+        **Training:** T4 GPU · 300K headlines · 6000 steps · ~28 mins
         """)
 
 with right:
     st.markdown("""
-    <div style="padding: 2rem 1.5rem 0 1.5rem;">
-    <div class="output-header">
-        <div class="output-title"><span class="output-dot"></span>Generated Output</div>
-    </div>
+    <div class="right-col">
+    <div class="right-label"><div class="right-label-dot"></div>Generated Headlines</div>
     """, unsafe_allow_html=True)
 
     if generate:
-        current_prompt = st.session_state.prompt_val or prompt
+        current_prompt = prompt or st.session_state.prompt_val
         if not current_prompt.strip():
-            st.warning("Enter a topic or click a quick topic to get started.")
+            st.warning("Enter a topic to generate headlines.")
         else:
             st.session_state.results = []
             for i in range(num_variants):
                 with st.spinner(f"Writing headline {i+1}..."):
-                    headline = generate_headline(
+                    h = generate_headline(
                         model, tokenizer, current_prompt,
-                        max_new_tokens=60,
-                        temperature=0.8,
-                        top_k=50,
-                        top_p=0.9,
-                        device=device
+                        max_new_tokens=60, temperature=0.8,
+                        top_k=50, top_p=0.9, device=device
                     )
-                    sub = get_sub(headline)
-                    st.session_state.results.append((headline, sub))
+                    d = get_sub(h)
+                    st.session_state.results.append((h, d))
 
     if st.session_state.results:
-        for i, (headline, sub) in enumerate(st.session_state.results):
+        for i, (h, d) in enumerate(st.session_state.results):
             st.markdown(f"""
             <div class="news-card">
-                <div class="glow"></div>
-                <div class="card-num">Headline {i+1}</div>
-                <div class="card-headline">{headline}</div>
-                {"<div class='card-sub'>" + sub + "</div>" if sub else ""}
+                <div class="card-glow"></div>
+                <div class="card-n">Headline {i+1}</div>
+                <div class="card-h">{h}</div>
+                {"<div class='card-d'>" + d + "</div>" if d else ""}
             </div>
             """, unsafe_allow_html=True)
     else:
         st.markdown("""
-        <div class="empty-state">
-            <div class="empty-icon">📰</div>
-            <div class="empty-title">No headlines yet</div>
-            <div class="empty-sub">Enter a topic on the left and click Generate to see AI-written headlines appear here.</div>
+        <div class="empty-wrap">
+            <div class="empty-icon-box">📰</div>
+            <div class="empty-t">No headlines yet</div>
+            <div class="empty-s">Type a topic on the left and click Generate to see AI-written headlines appear here.</div>
         </div>
         """, unsafe_allow_html=True)
 
