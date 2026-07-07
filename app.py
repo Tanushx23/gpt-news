@@ -20,18 +20,6 @@ st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
-    /* ---- Token system (light theme) ----
-       page-bg:        #fafafa
-       left panel:     #ffffff
-       right panel:    #f1f2f7   <- distinct from left, gives real separation
-       border:         #e5e7eb
-       text-primary:   #111318
-       text-secondary: #6b7280
-       text-tertiary:  #9ca3af
-       accent-indigo:  #4f46e5 / #4338ca (hover)
-       accent-teal:    #0d9488  (contrast highlight for stats/labels)
-    */
-
     .stApp { background-color: #fafafa !important; }
     .main .block-container {
         background-color: #fafafa !important;
@@ -40,14 +28,10 @@ st.markdown("""
     }
     * { font-family: 'Inter', -apple-system, sans-serif !important; }
 
-    /* Base text color scoped to plain content only, NOT inside interactive
-       controls (buttons, inputs, radios) so it can never make button
-       labels invisible again. */
     .left-col, .right-col, .stMarkdown, div[data-testid="stExpander"] {
         color: #111318;
     }
 
-    /* Topbar */
     .topbar {
         position: fixed;
         top: 0; left: 0; right: 0;
@@ -94,7 +78,6 @@ st.markdown("""
         border-radius: 6px;
     }
 
-    /* Left panel */
     .left-col {
         background: #ffffff;
         padding: 4rem 4rem 3rem 4rem;
@@ -143,7 +126,6 @@ st.markdown("""
         font-weight: 400;
     }
 
-    /* Input */
     .stTextInput > div > div > input {
         background: #ffffff !important;
         border: 1px solid #d1d5db !important;
@@ -163,7 +145,6 @@ st.markdown("""
         font-weight: 400;
     }
 
-    /* Radio: override Streamlit's default red accent */
     .stRadio [role="radiogroup"] label div:first-child {
         border-color: #4f46e5 !important;
     }
@@ -173,7 +154,6 @@ st.markdown("""
     }
     .stRadio label span { color: #111318 !important; }
 
-    /* Generate button */
     .stButton > button {
         background: #4f46e5 !important;
         border: none !important;
@@ -196,7 +176,6 @@ st.markdown("""
         box-shadow: 0 8px 20px rgba(79,70,229,0.3) !important;
     }
 
-    /* Stats row */
     .stats-strip {
         display: flex;
         gap: 2rem;
@@ -223,7 +202,6 @@ st.markdown("""
         font-weight: 500;
     }
 
-    /* Right panel — visually distinct from left */
     .right-col {
         background: #f1f2f7;
         padding: 4rem 4rem 3rem 4rem;
@@ -249,7 +227,6 @@ st.markdown("""
         border-radius: 50%;
     }
 
-    /* Cards */
     .news-card {
         background: #ffffff;
         border: 1px solid #e5e7eb;
@@ -290,7 +267,6 @@ st.markdown("""
         font-weight: 400;
     }
 
-    /* Empty */
     .empty-wrap {
         flex: 1;
         display: flex;
@@ -330,8 +306,6 @@ st.markdown("""
         margin-top: 2rem;
     }
 
-    /* Hide Streamlit chrome, including the bottom "Manage app" toolbar
-       that overlapped content in the shared/cloud view. */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
@@ -373,7 +347,6 @@ def get_sub(headline):
     except:
         return ""
 
-# Topbar
 st.markdown("""
 <div class="topbar">
     <div class="topbar-logo">
@@ -433,13 +406,6 @@ with left:
         """)
 
 with right:
-    # Run generation first (if triggered) so the results are ready before
-    # we build the right column's HTML as a single block below. Splitting
-    # this HTML across multiple st.markdown() calls was the bug that made
-    # the cards render below the empty right-col box instead of inside it -
-    # each st.markdown() is its own isolated container, so an unclosed
-    # <div> opened in one call never actually wraps content from a later
-    # call; the browser just auto-closes it right where that call ends.
     gen_warning = False
     if generate:
         current_prompt = prompt or st.session_state.prompt_val
@@ -487,4 +453,3 @@ with right:
         {body_html}
     </div>
     """, unsafe_allow_html=True)
-    
