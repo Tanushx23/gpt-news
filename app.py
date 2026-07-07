@@ -26,7 +26,8 @@ st.markdown("""
         padding: 76px 0 140px 0 !important;
         max-width: 100% !important;
     }
-    * { font-family: 'Inter', -apple-system, sans-serif !important; }
+    *:not([data-testid="stIconMaterial"]) { font-family: 'Inter', -apple-system, sans-serif !important; }
+    [data-testid="stIconMaterial"] { font-family: 'Material Symbols Rounded' !important; }
 
     .left-col, .right-col, .stMarkdown, div[data-testid="stExpander"] {
         color: #111318;
