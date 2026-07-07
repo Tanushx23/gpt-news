@@ -430,11 +430,10 @@ with right:
         cards_html = ""
         for i, (h, d) in enumerate(st.session_state.results):
             sub_html = f"<div class='card-d'>{d}</div>" if d else ""
-            cards_html += f"""
-            <div class="news-card">
-                <div class="card-n">Headline {i+1}</div>
-                <div class="card-h">{h}</div>
-                {sub_html}
+            cards_html += f"""<div class="news-card">
+            <div class="card-n">Headline {i+1}</div>
+            <div class="card-h">{h}</div>
+            {sub_html}
             </div>
             """
         body_html = cards_html
