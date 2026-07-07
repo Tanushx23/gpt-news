@@ -439,11 +439,10 @@ with right:
             """
         body_html = cards_html
     else:
-        body_html = """
-        <div class="empty-wrap">
-            <div class="empty-icon-box">📰</div>
-            <div class="empty-t">No headlines yet</div>
-            <div class="empty-s">Type a topic on the left and click Generate to see AI-written headlines appear here.</div>
+        body_html = """<div class="empty-wrap">
+        <div class="empty-icon-box">📰</div>
+        <div class="empty-t">No headlines yet</div>
+        <div class="empty-s">Type a topic on the left and click Generate to see AI-written headlines appear here.</div>
         </div>
         """
 
