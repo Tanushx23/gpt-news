@@ -20,28 +20,31 @@ st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
-    /* ---- Token system ----
-       bg-base:      #101216  (layered dark grey, not pure black)
-       bg-surface:   #191c22  (cards)
-       bg-hover:     #1f232b  (card hover)
-       border:       rgba(255,255,255,0.09)
-       border-hover: rgba(129,140,248,0.35)
-       text-primary: #f1f5f9
-       text-secondary: #a3adc2  (readable grey, not near-invisible)
-       text-tertiary:  #6b7686
-       accent-indigo: #818cf8 / #6366f1
-       accent-cyan:   #22d3ee  (contrast highlight for stats)
+    /* ---- Token system (light theme) ----
+       page-bg:        #fafafa
+       left panel:     #ffffff
+       right panel:    #f1f2f7   <- distinct from left, gives real separation
+       border:         #e5e7eb
+       text-primary:   #111318
+       text-secondary: #6b7280
+       text-tertiary:  #9ca3af
+       accent-indigo:  #4f46e5 / #4338ca (hover)
+       accent-teal:    #0d9488  (contrast highlight for stats/labels)
     */
 
-    .stApp { background-color: #101216 !important; }
+    .stApp { background-color: #fafafa !important; }
     .main .block-container {
-        background-color: #101216 !important;
-        padding: 76px 0 0 0 !important;
+        background-color: #fafafa !important;
+        padding: 76px 0 90px 0 !important;
         max-width: 100% !important;
     }
     * { font-family: 'Inter', -apple-system, sans-serif !important; }
-    body, p, span, label, div, h1, h2, h3, li, strong {
-        color: #f1f5f9 !important;
+
+    /* Base text color scoped to plain content only, NOT inside interactive
+       controls (buttons, inputs, radios) so it can never make button
+       labels invisible again. */
+    .left-col, .right-col, .stMarkdown, div[data-testid="stExpander"] {
+        color: #111318;
     }
 
     /* Topbar */
@@ -49,9 +52,9 @@ st.markdown("""
         position: fixed;
         top: 0; left: 0; right: 0;
         z-index: 999;
-        background: rgba(16, 18, 22, 0.88);
+        background: rgba(255, 255, 255, 0.9);
         backdrop-filter: blur(20px);
-        border-bottom: 1px solid rgba(255,255,255,0.08);
+        border-bottom: 1px solid #e5e7eb;
         padding: 0 3rem;
         height: 60px;
         display: flex;
@@ -61,7 +64,7 @@ st.markdown("""
     .topbar-logo {
         font-size: 1rem;
         font-weight: 700;
-        color: #f1f5f9 !important;
+        color: #111318 !important;
         letter-spacing: -0.3px;
         display: flex;
         align-items: center;
@@ -69,9 +72,8 @@ st.markdown("""
     }
     .logo-dot {
         width: 8px; height: 8px;
-        background: #6366f1;
+        background: #4f46e5;
         border-radius: 50%;
-        box-shadow: 0 0 10px #6366f1;
     }
     .topbar-right {
         display: flex;
@@ -80,46 +82,39 @@ st.markdown("""
     }
     .topbar-link {
         font-size: 0.82rem;
-        color: #8b94a7 !important;
+        color: #6b7280 !important;
         font-weight: 500;
     }
     .topbar-cta {
-        background: #f1f5f9;
-        color: #101216 !important;
+        background: #111318;
+        color: #ffffff !important;
         font-size: 0.82rem;
         font-weight: 600;
         padding: 0.4rem 1.1rem;
         border-radius: 6px;
     }
 
-    /* Left */
+    /* Left panel */
     .left-col {
+        background: #ffffff;
         padding: 4rem 4rem 3rem 4rem;
         display: flex;
         flex-direction: column;
         justify-content: center;
-        border-right: 1px solid rgba(255,255,255,0.07);
         position: relative;
         overflow: hidden;
-    }
-    .left-glow {
-        position: absolute;
-        width: 420px; height: 420px;
-        background: radial-gradient(circle, rgba(99,102,241,0.14) 0%, transparent 70%);
-        top: 15%; left: -120px;
-        pointer-events: none;
     }
     .eyebrow {
         display: inline-flex;
         align-items: center;
         gap: 0.5rem;
-        background: rgba(99,102,241,0.12);
-        border: 1px solid rgba(129,140,248,0.3);
+        background: #eef2ff;
+        border: 1px solid #c7d2fe;
         border-radius: 20px;
         padding: 0.3rem 0.9rem;
         font-size: 0.72rem;
         font-weight: 600;
-        color: #a5b4fc !important;
+        color: #4338ca !important;
         letter-spacing: 0.05em;
         text-transform: uppercase;
         margin-bottom: 1.8rem;
@@ -127,22 +122,21 @@ st.markdown("""
     }
     .eyebrow-dot {
         width: 5px; height: 5px;
-        background: #6366f1;
+        background: #4f46e5;
         border-radius: 50%;
-        box-shadow: 0 0 6px #6366f1;
     }
     .hero-h1 {
         font-size: 3.6rem;
         font-weight: 900;
         line-height: 1.05;
         letter-spacing: -2px;
-        color: #f1f5f9 !important;
+        color: #111318 !important;
         margin-bottom: 1.2rem;
     }
-    .hero-h1 .purple { color: #a5b4fc !important; }
+    .hero-h1 .purple { color: #4f46e5 !important; }
     .hero-desc {
         font-size: 1rem;
-        color: #a3adc2 !important;
+        color: #6b7280 !important;
         line-height: 1.7;
         max-width: 420px;
         margin-bottom: 2.5rem;
@@ -150,34 +144,38 @@ st.markdown("""
     }
 
     /* Input */
-    .input-wrap {
-        position: relative;
-        margin-bottom: 1rem;
-    }
     .stTextInput > div > div > input {
-        background: rgba(255,255,255,0.045) !important;
-        border: 1px solid rgba(255,255,255,0.14) !important;
+        background: #ffffff !important;
+        border: 1px solid #d1d5db !important;
         border-radius: 12px !important;
-        color: #f1f5f9 !important;
+        color: #111318 !important;
         font-size: 1rem !important;
         padding: 1rem 1.2rem !important;
         transition: all 0.2s !important;
         height: 54px !important;
     }
     .stTextInput > div > div > input:focus {
-        border-color: #818cf8 !important;
-        background: rgba(99,102,241,0.08) !important;
-        box-shadow: 0 0 0 4px rgba(99,102,241,0.15) !important;
+        border-color: #4f46e5 !important;
+        box-shadow: 0 0 0 4px rgba(79,70,229,0.12) !important;
     }
     .stTextInput > div > div > input::placeholder {
-        color: #5b6577 !important;
+        color: #9ca3af !important;
         font-weight: 400;
     }
 
+    /* Radio: override Streamlit's default red accent */
+    .stRadio [role="radiogroup"] label div:first-child {
+        border-color: #4f46e5 !important;
+    }
+    .stRadio [data-baseweb="radio"] div[aria-checked="true"] {
+        background-color: #4f46e5 !important;
+        border-color: #4f46e5 !important;
+    }
+    .stRadio label span { color: #111318 !important; }
+
     /* Generate button */
     .stButton > button {
-        background: #f1f5f9 !important;
-        color: #101216 !important;
+        background: #4f46e5 !important;
         border: none !important;
         border-radius: 10px !important;
         padding: 0 1.5rem !important;
@@ -188,10 +186,14 @@ st.markdown("""
         letter-spacing: -0.2px !important;
         transition: all 0.15s !important;
     }
+    .stButton > button p {
+        color: #ffffff !important;
+        font-weight: 700 !important;
+    }
     .stButton > button:hover {
-        background: #c7d2fe !important;
+        background: #4338ca !important;
         transform: translateY(-1px) !important;
-        box-shadow: 0 8px 24px rgba(99,102,241,0.25) !important;
+        box-shadow: 0 8px 20px rgba(79,70,229,0.3) !important;
     }
 
     /* Stats row */
@@ -199,7 +201,7 @@ st.markdown("""
         display: flex;
         gap: 2rem;
         padding-top: 2rem;
-        border-top: 1px solid rgba(255,255,255,0.08);
+        border-top: 1px solid #e5e7eb;
         margin-top: 1.5rem;
     }
     .stat-s {
@@ -210,28 +212,30 @@ st.markdown("""
     .stat-s .v {
         font-size: 1.2rem;
         font-weight: 800;
-        color: #22d3ee !important;
+        color: #0d9488 !important;
         letter-spacing: -0.5px;
     }
     .stat-s .l {
         font-size: 0.7rem;
-        color: #6b7686 !important;
+        color: #9ca3af !important;
         text-transform: uppercase;
         letter-spacing: 0.08em;
         font-weight: 500;
     }
 
-    /* Right column */
+    /* Right panel — visually distinct from left */
     .right-col {
-        background: #101216;
+        background: #f1f2f7;
         padding: 4rem 4rem 3rem 4rem;
         display: flex;
         flex-direction: column;
+        min-height: calc(100vh - 76px - 90px);
+        border-left: 1px solid #e5e7eb;
     }
     .right-label {
         font-size: 0.7rem;
         font-weight: 600;
-        color: #6b7686 !important;
+        color: #6b7280 !important;
         text-transform: uppercase;
         letter-spacing: 0.15em;
         margin-bottom: 1.5rem;
@@ -241,37 +245,29 @@ st.markdown("""
     }
     .right-label-dot {
         width: 5px; height: 5px;
-        background: #6366f1;
+        background: #4f46e5;
         border-radius: 50%;
-        box-shadow: 0 0 6px #6366f1;
     }
 
     /* Cards */
     .news-card {
-        background: #191c22;
-        border: 1px solid rgba(255,255,255,0.09);
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
         border-radius: 14px;
         padding: 1.5rem 1.7rem;
         margin-bottom: 1rem;
         position: relative;
         overflow: hidden;
-        transition: border-color 0.2s, background 0.2s;
+        transition: border-color 0.2s, box-shadow 0.2s;
     }
     .news-card:hover {
-        border-color: rgba(129,140,248,0.35);
-        background: #1f232b;
-    }
-    .card-glow {
-        position: absolute;
-        top: 0; left: 0;
-        right: 0; height: 1px;
-        background: linear-gradient(90deg, transparent, #6366f1, transparent);
-        opacity: 0.7;
+        border-color: #c7d2fe;
+        box-shadow: 0 4px 14px rgba(79,70,229,0.08);
     }
     .card-n {
         font-size: 0.65rem;
         font-weight: 700;
-        color: #22d3ee !important;
+        color: #0d9488 !important;
         text-transform: uppercase;
         letter-spacing: 0.15em;
         margin-bottom: 0.6rem;
@@ -281,16 +277,16 @@ st.markdown("""
         font-size: 1.1rem;
         font-weight: 700;
         line-height: 1.45;
-        color: #f1f5f9 !important;
+        color: #111318 !important;
         letter-spacing: -0.3px;
         margin-bottom: 0.75rem;
     }
     .card-d {
         font-size: 0.82rem;
         line-height: 1.6;
-        color: #8b94a7 !important;
+        color: #6b7280 !important;
         padding-top: 0.75rem;
-        border-top: 1px solid rgba(255,255,255,0.07);
+        border-top: 1px solid #e5e7eb;
         font-weight: 400;
     }
 
@@ -306,8 +302,8 @@ st.markdown("""
     }
     .empty-icon-box {
         width: 64px; height: 64px;
-        background: rgba(99,102,241,0.1);
-        border: 1px solid rgba(129,140,248,0.2);
+        background: #eef2ff;
+        border: 1px solid #c7d2fe;
         border-radius: 18px;
         display: flex;
         align-items: center;
@@ -317,27 +313,34 @@ st.markdown("""
     .empty-t {
         font-size: 0.95rem;
         font-weight: 600;
-        color: #a3adc2 !important;
+        color: #374151 !important;
     }
     .empty-s {
         font-size: 0.8rem;
-        color: #6b7686 !important;
+        color: #9ca3af !important;
         text-align: center;
         max-width: 260px;
         line-height: 1.6;
     }
 
     div[data-testid="stExpander"] {
-        background: #191c22 !important;
-        border: 1px solid rgba(255,255,255,0.09) !important;
+        background: #ffffff !important;
+        border: 1px solid #e5e7eb !important;
         border-radius: 10px !important;
         margin-top: 2rem;
     }
 
+    /* Hide Streamlit chrome, including the bottom "Manage app" toolbar
+       that overlapped content in the shared/cloud view. */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
     .stDeployButton {display: none;}
+    div[data-testid="stStatusWidget"] {display: none;}
+    div[data-testid="stToolbar"] {display: none;}
+    div[data-testid="stDecoration"] {display: none;}
+    .viewerBadge_container__1QSob {display: none;}
+    a[href*="streamlit.io"] { display: none !important; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -390,7 +393,6 @@ left, right = st.columns([1, 1])
 with left:
     st.markdown("""
     <div class="left-col">
-        <div class="left-glow"></div>
         <div class="eyebrow"><div class="eyebrow-dot"></div>AI · Indian News · GPT-2</div>
         <div class="hero-h1">Generate<br>Indian News<br><span class="purple">Headlines.</span></div>
         <div class="hero-desc">
@@ -456,7 +458,6 @@ with right:
         for i, (h, d) in enumerate(st.session_state.results):
             st.markdown(f"""
             <div class="news-card">
-                <div class="card-glow"></div>
                 <div class="card-n">Headline {i+1}</div>
                 <div class="card-h">{h}</div>
                 {"<div class='card-d'>" + d + "</div>" if d else ""}
