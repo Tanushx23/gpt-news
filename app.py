@@ -35,7 +35,7 @@ st.markdown("""
     .stApp { background-color: #fafafa !important; }
     .main .block-container {
         background-color: #fafafa !important;
-        padding: 76px 0 90px 0 !important;
+        padding: 76px 0 140px 0 !important;
         max-width: 100% !important;
     }
     * { font-family: 'Inter', -apple-system, sans-serif !important; }
@@ -229,7 +229,7 @@ st.markdown("""
         padding: 4rem 4rem 3rem 4rem;
         display: flex;
         flex-direction: column;
-        min-height: calc(100vh - 76px - 90px);
+        min-height: calc(100vh - 76px - 140px);
         border-left: 1px solid #e5e7eb;
     }
     .right-label {
@@ -433,15 +433,18 @@ with left:
         """)
 
 with right:
-    st.markdown("""
-    <div class="right-col">
-    <div class="right-label"><div class="right-label-dot"></div>Generated Headlines</div>
-    """, unsafe_allow_html=True)
-
+    # Run generation first (if triggered) so the results are ready before
+    # we build the right column's HTML as a single block below. Splitting
+    # this HTML across multiple st.markdown() calls was the bug that made
+    # the cards render below the empty right-col box instead of inside it -
+    # each st.markdown() is its own isolated container, so an unclosed
+    # <div> opened in one call never actually wraps content from a later
+    # call; the browser just auto-closes it right where that call ends.
+    gen_warning = False
     if generate:
         current_prompt = prompt or st.session_state.prompt_val
         if not current_prompt.strip():
-            st.warning("Enter a topic to generate headlines.")
+            gen_warning = True
         else:
             st.session_state.results = []
             for i in range(num_variants):
@@ -454,23 +457,34 @@ with right:
                     d = get_sub(h)
                     st.session_state.results.append((h, d))
 
+    if gen_warning:
+        st.warning("Enter a topic to generate headlines.")
+
     if st.session_state.results:
+        cards_html = ""
         for i, (h, d) in enumerate(st.session_state.results):
-            st.markdown(f"""
+            sub_html = f"<div class='card-d'>{d}</div>" if d else ""
+            cards_html += f"""
             <div class="news-card">
                 <div class="card-n">Headline {i+1}</div>
                 <div class="card-h">{h}</div>
-                {"<div class='card-d'>" + d + "</div>" if d else ""}
+                {sub_html}
             </div>
-            """, unsafe_allow_html=True)
+            """
+        body_html = cards_html
     else:
-        st.markdown("""
+        body_html = """
         <div class="empty-wrap">
             <div class="empty-icon-box">📰</div>
             <div class="empty-t">No headlines yet</div>
             <div class="empty-s">Type a topic on the left and click Generate to see AI-written headlines appear here.</div>
         </div>
-        """, unsafe_allow_html=True)
+        """
 
-    st.markdown("</div>", unsafe_allow_html=True)
+    st.markdown(f"""
+    <div class="right-col">
+        <div class="right-label"><div class="right-label-dot"></div>Generated Headlines</div>
+        {body_html}
+    </div>
+    """, unsafe_allow_html=True)
     
