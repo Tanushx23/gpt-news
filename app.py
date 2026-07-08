@@ -384,6 +384,18 @@ with left:
         label_visibility="collapsed"
     )
 
+
+    st.markdown("""
+    <div style="background: #eef2ff; border: 1px solid #c7d2fe; border-radius: 10px; 
+                padding: 0.8rem 1rem; margin-top: 0.5rem; font-size: 0.8rem; 
+                color: #4338ca !important;">
+        <strong style="color: #4338ca !important;">💡 For best results:</strong>
+        Use 2-3 word phrases or partial sentences — 
+        <em>e.g. "Supreme Court", "Delhi government", "RBI cuts", "India vs Australia"</em>.
+        Single names may produce unexpected associations.
+    </div>
+    """, unsafe_allow_html=True)
+
     col1, col2 = st.columns([3,1])
     with col1:
         num_variants = st.radio("", [1,2,3], index=2, horizontal=True, label_visibility="collapsed")
