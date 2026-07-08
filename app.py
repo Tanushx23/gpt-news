@@ -325,7 +325,7 @@ if "results" not in st.session_state:
     st.session_state.results = []
 
 @st.cache_resource(max_entries=1)
-def load_assets_v10():
+def load_assets_v11():
     device = "cpu"
     model_path = hf_hub_download(repo_id="tanush23x/gpt-news-headlines", filename="best_model.pt")
     tokenizer_path = hf_hub_download(repo_id="tanush23x/gpt-news-headlines", filename="bpe_tokenizer.json")
@@ -334,7 +334,7 @@ def load_assets_v10():
     return model, tokenizer, device
 
 with st.spinner(""):
-    model, tokenizer, device = load_assets_v10()
+    model, tokenizer, device = load_assets_v11()
 
 def get_sub(headline):
     try:
@@ -371,7 +371,7 @@ with left:
         <div class="hero-h1">Generate<br>Indian News<br><span class="purple">Headlines.</span></div>
         <div class="hero-desc">
             A GPT-2 transformer built from scratch and trained on
-            300,000 Times of India headlines. Type any topic and
+            3.8M Times of India headlines. Type any topic and
             watch AI write realistic Indian news.
         </div>
     </div>
@@ -418,8 +418,8 @@ with right:
                 with st.spinner(f"Writing headline {i+1}..."):
                     h = generate_headline(
                         model, tokenizer, current_prompt,
-                        max_new_tokens=60, temperature=0.6,
-                        top_k=40, top_p=0.85, device=device
+                        max_new_tokens=60, temperature=0.75,
+                        top_k=50, top_p=0.9, device=device
                     )
                     d = get_sub(h)
                     st.session_state.results.append((h, d))

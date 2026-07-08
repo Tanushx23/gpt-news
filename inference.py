@@ -84,10 +84,8 @@ def generate_headline(
 
     result = tokenizer.decode(generated_ids).strip()
     
-    # Only strip prompt echo if remaining text is substantial (>20 chars)
-    if result.lower().startswith(prompt.lower()):
-        stripped = result[len(prompt):].strip(" :-–")
-        if len(stripped) > 20:
-            result = stripped
+    # Only strip if result is meaningfully longer than prompt
+    if result.lower().startswith(prompt.lower()) and len(result) > len(prompt) + 25:
+        result = result[len(prompt):].strip(" :-–")
     
     return result
