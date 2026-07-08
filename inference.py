@@ -82,4 +82,10 @@ def generate_headline(
             idx = torch.cat([idx, next_token], dim=1)
             generated_ids.append(token_id)
 
-    return tokenizer.decode(generated_ids).strip()
+    result = tokenizer.decode(generated_ids).strip()
+    
+    # Remove prompt echo if headline starts with prompt
+    if result.lower().startswith(prompt.lower()):
+        result = result[len(prompt):].strip(" :-–")
+    
+    return result
