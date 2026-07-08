@@ -356,7 +356,7 @@ st.markdown("""
     </div>
     <div class="topbar-right">
         <span class="topbar-link">13.76M Parameters</span>
-        <span class="topbar-link">300K Headlines</span>
+        <span class="topbar-link">3.8M Headlines</span>
         <span class="topbar-cta">PyTorch · Built from Scratch</span>
     </div>
 </div>
@@ -392,10 +392,10 @@ with left:
 
     st.markdown("""
     <div class="stats-strip">
-        <div class="stat-s"><div class="v">300K</div><div class="l">Headlines</div></div>
+        <div class="stat-s"><div class="v">3.8M</div><div class="l">Headlines</div></div>
         <div class="stat-s"><div class="v">13.76M</div><div class="l">Parameters</div></div>
-        <div class="stat-s"><div class="v">~77</div><div class="l">Perplexity</div></div>
-        <div class="stat-s"><div class="v">4.34</div><div class="l">Val Loss</div></div>
+        <div class="stat-s"><div class="v">~49</div><div class="l">Perplexity</div></div>
+        <div class="stat-s"><div class="v">3.91</div><div class="l">Val Loss</div></div>
     </div>
     """, unsafe_allow_html=True)
 
