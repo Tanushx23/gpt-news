@@ -84,8 +84,10 @@ def generate_headline(
 
     result = tokenizer.decode(generated_ids).strip()
     
-    # Remove prompt echo if headline starts with prompt
+    # Only strip prompt echo if remaining text is substantial (>20 chars)
     if result.lower().startswith(prompt.lower()):
-        result = result[len(prompt):].strip(" :-–")
+        stripped = result[len(prompt):].strip(" :-–")
+        if len(stripped) > 20:
+            result = stripped
     
     return result
