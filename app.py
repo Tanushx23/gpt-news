@@ -325,7 +325,7 @@ if "results" not in st.session_state:
     st.session_state.results = []
 
 @st.cache_resource(max_entries=1)
-def load_assets_v11():
+def load_assets_v12():
     device = "cpu"
     model_path = hf_hub_download(repo_id="tanush23x/gpt-news-headlines", filename="best_model.pt")
     tokenizer_path = hf_hub_download(repo_id="tanush23x/gpt-news-headlines", filename="bpe_tokenizer.json")
@@ -334,7 +334,7 @@ def load_assets_v11():
     return model, tokenizer, device
 
 with st.spinner(""):
-    model, tokenizer, device = load_assets_v11()
+    model, tokenizer, device = load_assets_v12()
 
 def get_sub(headline):
     try:
@@ -415,7 +415,7 @@ with left:
         st.markdown("""
         GPT-2 transformer built from scratch in PyTorch — self-attention, multi-head attention, residual connections, layer norm, KV-caching, top-k/top-p sampling, ByteLevel BPE tokenizer. Sub-descriptions via Groq LLaMA.
 
-        **Training:** T4 GPU · 300K headlines · 6000 steps · ~28 mins
+        **Training:** T4/Kaggle GPU · 3.8M headlines · 15000 steps · ~150 mins
         """)
 
 with right:
