@@ -430,8 +430,8 @@ with right:
                 with st.spinner(f"Writing headline {i+1}..."):
                     h = generate_headline(
                         model, tokenizer, current_prompt,
-                        max_new_tokens=60, temperature=0.75,
-                        top_k=50, top_p=0.9, device=device
+                        max_new_tokens=60, temperature=0.7,
+                        top_k=40, top_p=0.85, device=device
                     )
                     d = get_sub(h)
                     st.session_state.results.append((h, d))
