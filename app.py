@@ -325,7 +325,7 @@ if "results" not in st.session_state:
     st.session_state.results = []
 
 @st.cache_resource(max_entries=1)
-def load_assets_v8():
+def load_assets_v9():
     device = "cpu"
     model_path = hf_hub_download(repo_id="tanush23x/gpt-news-headlines", filename="best_model.pt")
     tokenizer_path = hf_hub_download(repo_id="tanush23x/gpt-news-headlines", filename="bpe_tokenizer.json")
@@ -334,7 +334,7 @@ def load_assets_v8():
     return model, tokenizer, device
 
 with st.spinner(""):
-    model, tokenizer, device = load_assets_v8()
+    model, tokenizer, device = load_assets_v9()
 
 def get_sub(headline):
     try:
