@@ -24,7 +24,75 @@ def load_model(checkpoint_path, device="cuda"):
     return model, config
 
 
+def _is_low_quality(text, min_words=3):
+    """
+    Cheap, fast heuristics to catch degenerate generations worth
+    retrying rather than showing to a user:
+      - too short to be a real headline (model stopped almost immediately)
+      - the same word repeated back-to-back (a common failure mode of
+        small language models under sampling)
+      - a single word/token repeated for most of the output
+    This is intentionally conservative — it only catches clear failures,
+    not just "boring" output, since some retry budget is limited.
+    """
+    if not text:
+        return True
+
+    words = text.split()
+    if len(words) < min_words:
+        return True
+
+    # Immediate word-level repetition: "the the the..." or "says says..."
+    for i in range(len(words) - 1):
+        if words[i].lower() == words[i + 1].lower():
+            return True
+
+    # One word dominating the whole output (e.g. mostly "the the the X")
+    if len(words) >= 5:
+        most_common_count = max(words.count(w) for w in set(words))
+        if most_common_count / len(words) > 0.5:
+            return True
+
+    return False
+
+
 def generate_headline(
+    model,
+    tokenizer,
+    prompt,
+    max_new_tokens = 60,
+    temperature    = 0.8,
+    top_k          = 50,
+    top_p          = 0.9,
+    device         = "cuda",
+    max_retries    = 3,
+):
+    """
+    Generates a headline, retrying (with slightly higher temperature
+    each time) if the output looks degenerate — too short or stuck
+    repeating a word. Returns the best attempt if all retries still
+    look poor, rather than silently returning nothing.
+    """
+    best_result = ""
+    for attempt in range(max_retries):
+        # nudge temperature up slightly on retries to break out of
+        # whatever narrow distribution produced the bad output
+        attempt_temp = temperature + (0.1 * attempt)
+        result = _generate_headline_once(
+            model, tokenizer, prompt,
+            max_new_tokens=max_new_tokens,
+            temperature=attempt_temp,
+            top_k=top_k, top_p=top_p, device=device,
+        )
+        if not _is_low_quality(result):
+            return result
+        if len(result) > len(best_result):
+            best_result = result
+
+    return best_result
+
+
+def _generate_headline_once(
     model,
     tokenizer,
     prompt,
