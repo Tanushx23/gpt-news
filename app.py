@@ -347,7 +347,7 @@ def load_assets(model_version: str):
     return model, tokenizer, device
 
 with st.spinner(""):
-    model, tokenizer, device = load_assets(model_version="v2-headline-split-bos-eos")
+    model, tokenizer, device = load_assets(model_version="v3-20k-steps")
 
 def get_sub(headline):
     try:
@@ -419,8 +419,8 @@ with left:
     <div class="stats-strip">
         <div class="stat-s"><div class="v">3.6M</div><div class="l">Headlines</div></div>
         <div class="stat-s"><div class="v">13.76M</div><div class="l">Parameters</div></div>
-        <div class="stat-s"><div class="v">~44</div><div class="l">Perplexity</div></div>
-        <div class="stat-s"><div class="v">3.78</div><div class="l">Val Loss</div></div>
+        <div class="stat-s"><div class="v">~42</div><div class="l">Perplexity</div></div>
+        <div class="stat-s"><div class="v">3.73</div><div class="l">Val Loss</div></div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -430,7 +430,7 @@ with left:
 
         Headlines are deduplicated and wrapped in explicit [BOS]/[EOS] boundaries, with a headline-level train/val split to avoid data leakage.
 
-        **Training:** T4/Kaggle GPU · 3.6M headlines (deduplicated from 3.87M) · 16000 steps, 300-step warmup · ~142 mins
+        **Training:** T4/Kaggle GPU · 3.6M headlines (deduplicated from 3.87M) · 20000 steps, 300-step warmup · ~209 mins
         """)
 
 with right:
