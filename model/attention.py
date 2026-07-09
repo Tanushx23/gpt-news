@@ -38,9 +38,19 @@ class SelfAttention(nn.Module):
         scores = q @ k.transpose(-2, -1) * scale
 
         T_q, T_k = scores.shape[-2], scores.shape[-1]
-        scores = scores.masked_fill(
-            self.mask[:T_q, :T_k] == 0, float("-inf")
-        )
+
+        if kv_cache is not None and T_q == 1:
+            # Decoding a single new token against cached keys: every
+            # cached key is already causally valid (it came before this
+            # step), so no masking is needed. The old code sliced
+            # self.mask[:1, :T_k], which only allows attending to key
+            # position 0 — silently breaking causal attention whenever
+            # the cache was actually used.
+            pass
+        else:
+            scores = scores.masked_fill(
+                self.mask[:T_q, :T_k] == 0, float("-inf")
+            )
 
         weights = F.softmax(scores, dim=-1)
         weights = self.dropout(weights)
