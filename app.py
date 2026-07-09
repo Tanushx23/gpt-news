@@ -325,7 +325,14 @@ if "results" not in st.session_state:
     st.session_state.results = []
 
 @st.cache_resource(max_entries=1)
-def load_assets_v12():
+def load_assets(model_version: str):
+    """
+    `model_version` is a cache key, not used inside the function body.
+    Bump this string on every retrain that pushes new files to the same
+    HuggingFace repo path — Streamlit's cache_resource keys on the
+    function's arguments, so changing this string forces a fresh
+    download + reload instead of silently serving a stale cached model.
+    """
     device = "cpu"
     model_path = hf_hub_download(repo_id="tanush23x/gpt-news-headlines", filename="best_model.pt")
     tokenizer_path = hf_hub_download(repo_id="tanush23x/gpt-news-headlines", filename="bpe_tokenizer.json")
@@ -334,7 +341,7 @@ def load_assets_v12():
     return model, tokenizer, device
 
 with st.spinner(""):
-    model, tokenizer, device = load_assets_v12()
+    model, tokenizer, device = load_assets(model_version="v2-headline-split-bos-eos")
 
 def get_sub(headline):
     try:
@@ -356,7 +363,7 @@ st.markdown("""
     </div>
     <div class="topbar-right">
         <span class="topbar-link">13.76M Parameters</span>
-        <span class="topbar-link">3.8M Headlines</span>
+        <span class="topbar-link">3.6M Headlines</span>
         <span class="topbar-cta">PyTorch · Built from Scratch</span>
     </div>
 </div>
@@ -371,7 +378,7 @@ with left:
         <div class="hero-h1">Generate<br>Indian News<br><span class="purple">Headlines.</span></div>
         <div class="hero-desc">
             A GPT-2 transformer built from scratch and trained on
-            3.8M Times of India headlines. Type any topic and
+            3.6M deduplicated Times of India headlines. Type any topic and
             watch AI write realistic Indian news.
         </div>
     </div>
@@ -391,8 +398,8 @@ with left:
                 color: #4338ca !important;">
         <strong style="color: #4338ca !important;">💡 For best results:</strong>
         Use 2-3 word phrases or partial sentences — 
-        <em>e.g. "Supreme Court", "Delhi government", "RBI cuts", "India vs Australia"</em>.
-        Single names may produce unexpected associations.
+        <em>e.g. "supreme court", "Delhi government", "RBI cuts", "India vs Australia"</em>.
+        Casing doesn't matter — the model normalizes it internally.
     </div>
     """, unsafe_allow_html=True)
 
@@ -404,18 +411,20 @@ with left:
 
     st.markdown("""
     <div class="stats-strip">
-        <div class="stat-s"><div class="v">3.8M</div><div class="l">Headlines</div></div>
+        <div class="stat-s"><div class="v">3.6M</div><div class="l">Headlines</div></div>
         <div class="stat-s"><div class="v">13.76M</div><div class="l">Parameters</div></div>
-        <div class="stat-s"><div class="v">~49</div><div class="l">Perplexity</div></div>
-        <div class="stat-s"><div class="v">3.91</div><div class="l">Val Loss</div></div>
+        <div class="stat-s"><div class="v">~44</div><div class="l">Perplexity</div></div>
+        <div class="stat-s"><div class="v">3.78</div><div class="l">Val Loss</div></div>
     </div>
     """, unsafe_allow_html=True)
 
     with st.expander("About this model"):
         st.markdown("""
-        GPT-2 transformer built from scratch in PyTorch — self-attention, multi-head attention, residual connections, layer norm, KV-caching, top-k/top-p sampling, ByteLevel BPE tokenizer. Sub-descriptions via Groq LLaMA.
+        GPT-2 transformer built from scratch in PyTorch — self-attention, multi-head attention, residual connections, layer norm, KV-caching, top-k/top-p sampling, ByteLevel BPE tokenizer with lowercase normalization. Sub-descriptions via Groq LLaMA.
 
-        **Training:** T4/Kaggle GPU · 3.8M headlines · 15000 steps · ~150 mins
+        Headlines are deduplicated and wrapped in explicit [BOS]/[EOS] boundaries, with a headline-level train/val split to avoid data leakage.
+
+        **Training:** T4/Kaggle GPU · 3.6M headlines (deduplicated from 3.87M) · 16000 steps, 300-step warmup · ~142 mins
         """)
 
 with right:
