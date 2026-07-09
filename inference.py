@@ -28,16 +28,12 @@ def generate_headline(
     model,
     tokenizer,
     prompt,
-    max_new_tokens = 40,
+    max_new_tokens = 60,
     temperature    = 0.8,
     top_k          = 50,
     top_p          = 0.9,
     device         = "cuda"
 ):
-    """
-    Generates a single headline from a prompt.
-    Stops at newline token for clean headline boundary.
-    """
     model.eval()
 
     encoded = tokenizer.encode(prompt)
@@ -47,7 +43,9 @@ def generate_headline(
     newline_id = tokenizer.encode("\n").ids
     newline_id = newline_id[0] if newline_id else None
 
+    prompt_len = len(encoded.ids)
     generated_ids = idx[0].tolist()
+    tokens_generated = 0
 
     with torch.no_grad():
         for _ in range(max_new_tokens):
@@ -75,17 +73,25 @@ def generate_headline(
             next_token = torch.multinomial(probs, num_samples=1)
             token_id = next_token.item()
 
-            # Stop at newline — clean headline boundary
+            # Only stop at newline if we have generated enough tokens
+            # beyond the prompt — prevents stopping immediately
             if newline_id is not None and token_id == newline_id:
-                break
+                if tokens_generated >= 5:
+                    break
+                else:
+                    # Skip this newline, continue generating
+                    idx = torch.cat([idx, next_token], dim=1)
+                    generated_ids.append(token_id)
+                    tokens_generated += 1
+                    continue
 
             idx = torch.cat([idx, next_token], dim=1)
             generated_ids.append(token_id)
+            tokens_generated += 1
 
     result = tokenizer.decode(generated_ids).strip()
-    
-    # Only strip if result is meaningfully longer than prompt
-    if result.lower().startswith(prompt.lower()) and len(result) > len(prompt) + 15:
-        result = result[len(prompt):].strip(" :-–")
-    
+
+    # Clean up any embedded newlines
+    result = result.replace("\n", " ").strip()
+
     return result
