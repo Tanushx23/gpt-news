@@ -16,7 +16,7 @@ config = {
     "context_len"    : 128,
     "dropout"        : 0.2,
     "batch_size"     : 128,
-    "max_steps"      : 16000,
+    "max_steps"      : 20000,
     "warmup_steps"   : 300,     # NEW — stabilizes early training
     "eval_every"     : 500,
     "eval_batches"   : 50,      # NEW — was hardcoded to 20, small vs. new held-out val set
