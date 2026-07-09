@@ -1,8 +1,8 @@
 import torch
-import torch.nn as nn
+import torch.nn.functional as F
+
 from model.gpt import GPT
-from tokenizers import Tokenizer
-import os
+
 
 def load_model(checkpoint_path, device="cuda"):
     checkpoint = torch.load(checkpoint_path, map_location=device)
@@ -14,7 +14,7 @@ def load_model(checkpoint_path, device="cuda"):
         num_heads   = config["num_heads"],
         num_layers  = config["num_layers"],
         context_len = config["context_len"],
-        dropout     = 0.0
+        dropout     = 0.0,
     ).to(device)
 
     model.load_state_dict(checkpoint["model_state"])
@@ -32,20 +32,27 @@ def generate_headline(
     temperature    = 0.8,
     top_k          = 50,
     top_p          = 0.9,
-    device         = "cuda"
+    device         = "cuda",
 ):
+    """
+    Generates a headline starting from `prompt`, stopping cleanly at the
+    model's learned [EOS] token.
+
+    Note: the tokenizer normalizes casing internally (see
+    data/train_tokenizer.py), so the prompt's casing no longer affects
+    tokenization — "supreme court" and "Supreme Court" now tokenize
+    identically. This replaces the old behavior where lowercase prompts
+    were shredded into out-of-distribution character fragments.
+    """
     model.eval()
 
-    encoded = tokenizer.encode(prompt)
-    idx = torch.tensor([encoded.ids], dtype=torch.long).to(device)
+    bos_id = tokenizer.token_to_id("[BOS]")
+    eos_id = tokenizer.token_to_id("[EOS]")
 
-    # Find newline token id
-    newline_id = tokenizer.encode("\n").ids
-    newline_id = newline_id[0] if newline_id else None
+    prompt_ids = tokenizer.encode(prompt.strip()).ids
+    idx = torch.tensor([[bos_id] + prompt_ids], dtype=torch.long).to(device)
 
-    prompt_len = len(encoded.ids)
-    generated_ids = idx[0].tolist()
-    tokens_generated = 0
+    generated_ids = []
 
     with torch.no_grad():
         for _ in range(max_new_tokens):
@@ -62,36 +69,25 @@ def generate_headline(
 
             if top_p is not None:
                 sorted_logits, sorted_idx = torch.sort(logits, descending=True)
-                cum_probs = torch.cumsum(
-                    torch.softmax(sorted_logits, dim=-1), dim=-1
-                )
-                remove = cum_probs - torch.softmax(sorted_logits, dim=-1) > top_p
+                cum_probs = torch.cumsum(F.softmax(sorted_logits, dim=-1), dim=-1)
+                remove = cum_probs - F.softmax(sorted_logits, dim=-1) > top_p
                 sorted_logits[remove] = float("-inf")
                 logits = torch.scatter(logits, 1, sorted_idx, sorted_logits)
 
-            probs = torch.softmax(logits, dim=-1)
+            probs = F.softmax(logits, dim=-1)
             next_token = torch.multinomial(probs, num_samples=1)
             token_id = next_token.item()
 
-            # Only stop at newline if we have generated enough tokens
-            # beyond the prompt — prevents stopping immediately
-            if newline_id is not None and token_id == newline_id:
-                if tokens_generated >= 5:
-                    break
-                else:
-                    # Skip this newline, continue generating
-                    idx = torch.cat([idx, next_token], dim=1)
-                    generated_ids.append(token_id)
-                    tokens_generated += 1
-                    continue
+            if token_id == eos_id:
+                break
 
             idx = torch.cat([idx, next_token], dim=1)
             generated_ids.append(token_id)
-            tokens_generated += 1
 
     result = tokenizer.decode(generated_ids).strip()
 
-    # Clean up any embedded newlines
-    result = result.replace("\n", " ").strip()
+    # Tokenizer output is lowercase (normalized) — capitalize for display.
+    if result:
+        result = result[0].upper() + result[1:]
 
     return result
