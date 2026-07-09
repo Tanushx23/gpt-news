@@ -349,12 +349,13 @@ def load_assets(model_version: str):
 with st.spinner(""):
     model, tokenizer, device = load_assets(model_version="v3-20k-steps")
 
-def get_sub(headline):
+def get_sub(headline, original_prompt=""):
     try:
         client = Groq(api_key=get_groq_key())
+        context_hint = f' The user was searching for topics related to: "{original_prompt}".' if original_prompt else ""
         r = client.chat.completions.create(
             model="llama-3.3-70b-versatile",
-            messages=[{"role":"user","content":f"Write a 1-2 sentence Indian news brief for this headline. Be concise and journalistic. Do not repeat the headline: {headline}"}],
+            messages=[{"role":"user","content":f"Write a 1-2 sentence Indian news brief for this headline.{context_hint} Be concise and journalistic, and stay consistent with the intended topic above even if the headline phrasing is imperfect. Do not repeat the headline: {headline}"}],
             max_tokens=80
         )
         return r.choices[0].message.content.strip()
@@ -448,7 +449,7 @@ with right:
                         max_new_tokens=60, temperature=0.7,
                         top_k=40, top_p=0.85, device=device
                     )
-                    d = get_sub(h)
+                    d = get_sub(h, current_prompt)
                     st.session_state.results.append((h, d))
 
     if gen_warning:
