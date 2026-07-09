@@ -6,6 +6,12 @@ from groq import Groq
 import sys
 import os
 
+def get_groq_key():
+    try:
+        return st.secrets["GROQ_API_KEY"]
+    except Exception:
+        return os.environ.get("GROQ_API_KEY", "")
+
 sys.path.insert(0, os.path.dirname(__file__))
 from model.gpt import GPT
 from inference import load_model, generate_headline
@@ -345,7 +351,7 @@ with st.spinner(""):
 
 def get_sub(headline):
     try:
-        client = Groq(api_key=st.secrets["GROQ_API_KEY"])
+        client = Groq(api_key=get_groq_key())
         r = client.chat.completions.create(
             model="llama-3.3-70b-versatile",
             messages=[{"role":"user","content":f"Write a 1-2 sentence Indian news brief for this headline. Be concise and journalistic. Do not repeat the headline: {headline}"}],
